@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Map, { Marker, Source, Layer } from "react-map-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 interface Props {
   navigate: (screen: string) => void;
@@ -9,49 +11,55 @@ export default function Navigation({ navigate }: Props) {
 
   return (
     <div className="flex flex-col h-full bg-[#111827] relative">
-      {/* Map simulation */}
+      {/* Mapbox Map */}
       <div className="flex-1 relative overflow-hidden">
-        {/* OSM-style dark map */}
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice">
-          <rect width="400" height="600" fill="#1A2234"/>
-          {/* Roads */}
-          <line x1="0" y1="200" x2="400" y2="200" stroke="#2D4160" strokeWidth="12"/>
-          <line x1="0" y1="350" x2="400" y2="350" stroke="#2D4160" strokeWidth="8"/>
-          <line x1="200" y1="0" x2="200" y2="600" stroke="#2D4160" strokeWidth="12"/>
-          <line x1="100" y1="0" x2="100" y2="600" stroke="#243350" strokeWidth="6"/>
-          <line x1="300" y1="0" x2="300" y2="600" stroke="#243350" strokeWidth="6"/>
-          <line x1="0" y1="100" x2="400" y2="100" stroke="#243350" strokeWidth="5"/>
-          <line x1="0" y1="300" x2="400" y2="300" stroke="#243350" strokeWidth="5"/>
-          <line x1="0" y1="450" x2="400" y2="450" stroke="#243350" strokeWidth="4"/>
-          {/* Blocks */}
-          {[[110,110,80,80],[110,210,80,80],[210,110,80,80],[210,210,80,80],[110,360,80,80],[210,360,80,80],[310,110,80,80],[310,210,80,80],[110,460,80,60],[210,460,80,60]].map(([x,y,w,h],i) => (
-            <rect key={i} x={x} y={y} width={w} height={h} fill="#1E2D42" rx="4"/>
-          ))}
-          {/* Water area */}
-          <rect x="0" y="0" width="90" height="100" fill="#0D2035" opacity="0.8" rx="4"/>
-          <rect x="0" y="0" width="90" height="100" fill="#0A84FF" opacity="0.08"/>
-          <text x="45" y="55" textAnchor="middle" fill="#0A84FF" fontSize="8" opacity="0.6">RIVER</text>
-          {/* Route */}
-          <path d="M200 520 L200 350 L200 200 L160 200 L160 160 L130 160 L130 130" stroke="#FF4F38" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="14,7" opacity="0.9"/>
+        <Map
+          mapboxAccessToken={import.meta.env.VITE_MAPBOX_API_KEY}
+          initialViewState={{
+            longitude: 72.8777,
+            latitude: 19.0760,
+            zoom: 14
+          }}
+          style={{ width: "100%", height: "100%" }}
+          mapStyle="mapbox://styles/mapbox/dark-v11"
+        >
+          {/* Simple route line (straight for now) */}
+          <Source id="route" type="geojson" data={{
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: [[72.8777, 19.0760], [72.885, 19.085]] }
+          }}>
+            <Layer
+              id="route-line"
+              type="line"
+              paint={{ "line-color": "#FF4F38", "line-width": 5, "line-dasharray": [2, 1] }}
+            />
+          </Source>
+
           {/* Shelter markers */}
-          <circle cx="310" cy="120" r="14" fill="#30D158" opacity="0.25"/>
-          <circle cx="310" cy="120" r="9" fill="#30D158" opacity="0.7"/>
-          <text x="310" y="124" textAnchor="middle" fill="white" fontSize="9" fontWeight="700">S</text>
-          <circle cx="110" cy="390" r="14" fill="#30D158" opacity="0.25"/>
-          <circle cx="110" cy="390" r="9" fill="#30D158" opacity="0.7"/>
-          <text x="110" y="394" textAnchor="middle" fill="white" fontSize="9" fontWeight="700">S</text>
+          <Marker longitude={72.89} latitude={19.08}>
+            <div className="w-5 h-5 rounded-full bg-[#30D158] flex items-center justify-center opacity-90">
+              <span className="text-white text-[10px] font-bold">S</span>
+            </div>
+          </Marker>
+
           {/* Destination */}
-          <circle cx="130" cy="130" r="20" fill="#FF3B30" opacity="0.2"/>
-          <circle cx="130" cy="130" r="12" fill="#FF3B30" opacity="0.9"/>
-          <text x="130" y="134" textAnchor="middle" fill="white" fontSize="9" fontWeight="700">🆘</text>
-          {/* Me */}
-          <circle cx="200" cy="520" r="18" fill="#0A84FF" opacity="0.15"/>
-          <circle cx="200" cy="520" r="10" fill="#0A84FF"/>
-          <circle cx="200" cy="520" r="5" fill="white"/>
-        </svg>
+          <Marker longitude={72.885} latitude={19.085}>
+            <div className="w-6 h-6 rounded-full bg-[#FF3B30] flex items-center justify-center opacity-90 shadow-lg shadow-red-500/50">
+              <span className="text-white text-xs font-bold">🆘</span>
+            </div>
+          </Marker>
+
+          {/* Responder (Me) */}
+          <Marker longitude={72.8777} latitude={19.0760}>
+            <div className="relative">
+              <div className="w-5 h-5 rounded-full bg-[#0A84FF] border-2 border-white shadow-lg shadow-blue-500/50" />
+            </div>
+          </Marker>
+        </Map>
 
         {/* Top info bar */}
-        <div className="absolute top-0 left-0 right-0 pt-10 px-4 pb-3 bg-gradient-to-b from-[#111827] to-transparent">
+        <div className="absolute top-0 left-0 right-0 pt-10 px-4 pb-3 bg-gradient-to-b from-[#111827] to-transparent pointer-events-none">
           <div className="flex items-center gap-2">
             <button onClick={() => navigate("incident-details")} className="w-9 h-9 bg-[#1E2D42]/90 border border-[#2D4160] rounded-xl flex items-center justify-center">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">

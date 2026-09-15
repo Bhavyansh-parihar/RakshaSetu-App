@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import Map, { Marker } from "react-map-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 type Screen = string;
 
@@ -205,29 +207,41 @@ export default function HomeScreen({ onNavigate, onMenu }: { onNavigate: (s: Scr
         {/* Map section */}
         <div className="mx-4 mb-4">
           <div className="rounded-2xl overflow-hidden border border-slate-200">
-            {/* Map placeholder */}
-            <div className="map-bg h-40 relative flex items-center justify-center">
-              {/* Roads */}
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 358 160" fill="none">
-                <line x1="0" y1="80" x2="358" y2="80" stroke="#94a3b8" strokeWidth="2"/>
-                <line x1="180" y1="0" x2="180" y2="160" stroke="#94a3b8" strokeWidth="2"/>
-                <line x1="0" y1="40" x2="180" y2="40" stroke="#cbd5e1" strokeWidth="1"/>
-                <line x1="180" y1="120" x2="358" y2="120" stroke="#cbd5e1" strokeWidth="1"/>
-                {/* Danger zone */}
-                <circle cx="80" cy="55" r="30" fill="#fca5a5" fillOpacity="0.3" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4 3"/>
+            {/* Mapbox Map */}
+            <div className="h-40 relative">
+              <Map
+                mapboxAccessToken={import.meta.env.VITE_MAPBOX_API_KEY}
+                initialViewState={{
+                  longitude: 72.8777,
+                  latitude: 19.0760,
+                  zoom: 13
+                }}
+                style={{ width: "100%", height: "100%" }}
+                mapStyle="mapbox://styles/mapbox/streets-v12"
+              >
+                {/* User marker */}
+                <Marker longitude={72.8777} latitude={19.0760}>
+                  <div className="relative z-10">
+                    <div className="w-5 h-5 rounded-full bg-blue-600 border-3 border-white shadow-lg animate-pulse" style={{ border: "3px solid white" }} />
+                    <div className="absolute -inset-2 rounded-full bg-blue-400/30 animate-sos-ring" />
+                  </div>
+                </Marker>
+
                 {/* Shelter markers */}
-                <circle cx="270" cy="50" r="10" fill="#16a34a" fillOpacity="0.9"/>
-                <text x="270" y="54" textAnchor="middle" fontSize="10" fill="white" fontWeight="bold">S</text>
-                <circle cx="300" cy="120" r="10" fill="#16a34a" fillOpacity="0.9"/>
-                <text x="300" y="124" textAnchor="middle" fontSize="10" fill="white" fontWeight="bold">S</text>
-              </svg>
-              {/* User marker */}
-              <div className="relative z-10">
-                <div className="w-5 h-5 rounded-full bg-blue-600 border-3 border-white shadow-lg animate-pulse" style={{ border: "3px solid white" }} />
-                <div className="absolute -inset-2 rounded-full bg-blue-400/30 animate-sos-ring" />
-              </div>
+                <Marker longitude={72.89} latitude={19.08}>
+                  <div className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center border border-white shadow-md">
+                    <span className="text-white text-[10px] font-bold">S</span>
+                  </div>
+                </Marker>
+                <Marker longitude={72.86} latitude={19.06}>
+                  <div className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center border border-white shadow-md">
+                    <span className="text-white text-[10px] font-bold">S</span>
+                  </div>
+                </Marker>
+              </Map>
+
               {/* Flood zone label */}
-              <div className="absolute top-3 left-3 bg-red-500/90 text-white text-xs font-bold px-2 py-1 rounded-lg">
+              <div className="absolute top-3 left-3 bg-red-500/90 text-white text-xs font-bold px-2 py-1 rounded-lg pointer-events-none z-10">
                 ⚠️ Flood Zone
               </div>
             </div>

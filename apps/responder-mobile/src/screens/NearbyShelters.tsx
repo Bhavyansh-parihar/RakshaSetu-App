@@ -1,12 +1,15 @@
+import Map, { Marker } from "react-map-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+
 interface Props {
   navigate: (screen: string) => void;
 }
 
 const shelters = [
-  { id: "SH-01", name: "Rajaram College Grounds", dist: "0.9 km", cap: 850, current: 612, status: "OPEN", type: "Primary" },
-  { id: "SH-02", name: "Govt. High School Annex", dist: "1.3 km", cap: 400, current: 380, status: "NEAR FULL", type: "Secondary" },
-  { id: "SH-03", name: "Sports Complex, Sector 4", dist: "2.1 km", cap: 1200, current: 430, status: "OPEN", type: "Primary" },
-  { id: "SH-04", name: "Community Hall Block-C", dist: "3.4 km", cap: 200, current: 198, status: "FULL", type: "Overflow" },
+  { id: "SH-01", name: "Rajaram College Grounds", dist: "0.9 km", cap: 850, current: 612, status: "OPEN", type: "Primary", lng: 72.87, lat: 19.07 },
+  { id: "SH-02", name: "Govt. High School Annex", dist: "1.3 km", cap: 400, current: 380, status: "NEAR FULL", type: "Secondary", lng: 72.88, lat: 19.08 },
+  { id: "SH-03", name: "Sports Complex, Sector 4", dist: "2.1 km", cap: 1200, current: 430, status: "OPEN", type: "Primary", lng: 72.86, lat: 19.06 },
+  { id: "SH-04", name: "Community Hall Block-C", dist: "3.4 km", cap: 200, current: 198, status: "FULL", type: "Overflow", lng: 72.89, lat: 19.09 },
 ];
 
 export default function NearbyShelters({ navigate }: Props) {
@@ -25,25 +28,30 @@ export default function NearbyShelters({ navigate }: Props) {
         </div>
       </div>
 
-      {/* Map placeholder */}
-      <div className="mx-4 mt-4 rounded-2xl overflow-hidden border border-[#2D4160] relative" style={{ height: 140 }}>
-        <svg className="w-full h-full" viewBox="0 0 400 140" preserveAspectRatio="xMidYMid slice">
-          <rect width="400" height="140" fill="#1A2234"/>
-          <line x1="0" y1="70" x2="400" y2="70" stroke="#2D4160" strokeWidth="10"/>
-          <line x1="200" y1="0" x2="200" y2="140" stroke="#2D4160" strokeWidth="8"/>
-          <line x1="100" y1="0" x2="100" y2="140" stroke="#243350" strokeWidth="5"/>
-          <line x1="300" y1="0" x2="300" y2="140" stroke="#243350" strokeWidth="5"/>
-          {[[50,40,"SH-01","#30D158"],[150,90,"SH-02","#FFB800"],[270,50,"SH-03","#30D158"],[330,100,"SH-04","#FF3B30"]].map(([x,y,label,color])=>(
-            <g key={String(label)}>
-              <circle cx={Number(x)} cy={Number(y)} r="14" fill={String(color)} opacity="0.2"/>
-              <circle cx={Number(x)} cy={Number(y)} r="8" fill={String(color)} opacity="0.9"/>
-              <text x={Number(x)} y={Number(y)+4} textAnchor="middle" fill="white" fontSize="7" fontWeight="700">S</text>
-            </g>
+      {/* Mapbox Map */}
+      <div className="mx-4 mt-4 rounded-2xl overflow-hidden border border-[#2D4160] relative h-[140px]">
+        <Map
+          mapboxAccessToken={import.meta.env.VITE_MAPBOX_API_KEY}
+          initialViewState={{
+            longitude: 72.875,
+            latitude: 19.075,
+            zoom: 12
+          }}
+          style={{ width: "100%", height: "100%" }}
+          mapStyle="mapbox://styles/mapbox/dark-v11"
+        >
+          {shelters.map((s) => (
+            <Marker key={s.id} longitude={s.lng} latitude={s.lat}>
+              <div className="w-5 h-5 rounded-full flex items-center justify-center opacity-90" style={{ backgroundColor: statusColor(s.status) }}>
+                <span className="text-[#111827] text-[10px] font-bold">S</span>
+              </div>
+            </Marker>
           ))}
-          <circle cx="200" cy="110" r="8" fill="#0A84FF"/>
-          <circle cx="200" cy="110" r="4" fill="white"/>
-        </svg>
-        <div className="absolute bottom-2 right-2 text-[#4D6E8A] text-xs opacity-60">© OpenStreetMap</div>
+          {/* User Marker */}
+          <Marker longitude={72.8777} latitude={19.0760}>
+            <div className="w-4 h-4 rounded-full bg-[#0A84FF] border border-white shadow-lg shadow-blue-500/50" />
+          </Marker>
+        </Map>
       </div>
 
       <div className="flex flex-col gap-3 px-4 py-4">

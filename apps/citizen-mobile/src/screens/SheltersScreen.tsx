@@ -1,10 +1,12 @@
 import { useState } from "react";
+import Map, { Marker } from "react-map-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 const shelters = [
-  { name: "Seva Shelter — Andheri East", distance: "1.2 km", capacity: "842/1200", eta: "8 min", status: "open", tags: ["Food", "Water", "Medical"] },
-  { name: "Bandra Relief Camp", distance: "2.8 km", capacity: "1100/1200", eta: "15 min", status: "open", tags: ["Food", "Water"] },
-  { name: "Dharavi Shelter Point", distance: "4.1 km", capacity: "1200/1200", eta: "22 min", status: "full", tags: ["Water"] },
-  { name: "Kurla Community Hall", distance: "5.3 km", capacity: "330/800", eta: "28 min", status: "open", tags: ["Food", "Water", "Medical", "Children"] },
+  { name: "Seva Shelter — Andheri East", distance: "1.2 km", capacity: "842/1200", eta: "8 min", status: "open", tags: ["Food", "Water", "Medical"], lat: 19.1136, lng: 72.8697 },
+  { name: "Bandra Relief Camp", distance: "2.8 km", capacity: "1100/1200", eta: "15 min", status: "open", tags: ["Food", "Water"], lat: 19.0596, lng: 72.8295 },
+  { name: "Dharavi Shelter Point", distance: "4.1 km", capacity: "1200/1200", eta: "22 min", status: "full", tags: ["Water"], lat: 19.0402, lng: 72.8553 },
+  { name: "Kurla Community Hall", distance: "5.3 km", capacity: "330/800", eta: "28 min", status: "open", tags: ["Food", "Water", "Medical", "Children"], lat: 19.0728, lng: 72.8789 },
 ];
 
 const filters = ["All", "Open", "Nearby", "Medical", "Food", "Water"];
@@ -40,28 +42,29 @@ export default function SheltersScreen({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* Full-screen map */}
-      <div className="map-bg h-48 relative flex-shrink-0">
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 393 192" fill="none">
-          <line x1="0" y1="96" x2="393" y2="96" stroke="#94a3b8" strokeWidth="2.5"/>
-          <line x1="196" y1="0" x2="196" y2="192" stroke="#94a3b8" strokeWidth="2.5"/>
-          <line x1="0" y1="48" x2="196" y2="48" stroke="#cbd5e1" strokeWidth="1.5"/>
-          <line x1="196" y1="144" x2="393" y2="144" stroke="#cbd5e1" strokeWidth="1.5"/>
-          <line x1="100" y1="0" x2="100" y2="192" stroke="#e2e8f0" strokeWidth="1"/>
-          <line x1="300" y1="0" x2="300" y2="192" stroke="#e2e8f0" strokeWidth="1"/>
-          {/* Flood overlay */}
-          <rect x="0" y="0" width="140" height="120" fill="#93c5fd" fillOpacity="0.2" rx="8"/>
-          <text x="70" y="70" textAnchor="middle" fontSize="10" fill="#2563eb" fontWeight="600">Flood Zone</text>
-          {/* Shelter markers */}
-          {[{x:280,y:60},{x:320,y:140},{x:240,y:160},{x:360,y:100}].map((pos,i) => (
-            <g key={i}>
-              <circle cx={pos.x} cy={pos.y} r="14" fill={i===2?"#ef4444":"#16a34a"} stroke="white" strokeWidth="2"/>
-              <text x={pos.x} y={pos.y+4} textAnchor="middle" fontSize="9" fill="white" fontWeight="700">S</text>
-            </g>
+      <div className="h-48 relative flex-shrink-0">
+        <Map
+          mapboxAccessToken={import.meta.env.VITE_MAPBOX_API_KEY}
+          initialViewState={{
+            longitude: 72.85,
+            latitude: 19.07,
+            zoom: 11
+          }}
+          style={{ width: "100%", height: "100%" }}
+          mapStyle="mapbox://styles/mapbox/streets-v12"
+        >
+          {filtered.map((shelter, i) => (
+            <Marker key={i} longitude={shelter.lng} latitude={shelter.lat}>
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 border-white shadow-md ${shelter.status === "full" ? "bg-red-500" : "bg-green-600"}`}>
+                <span className="text-white text-xs font-bold">S</span>
+              </div>
+            </Marker>
           ))}
           {/* User */}
-          <circle cx="196" cy="96" r="8" fill="#2563eb" stroke="white" strokeWidth="2.5"/>
-          <circle cx="196" cy="96" r="18" fill="#2563eb" fillOpacity="0.15"/>
-        </svg>
+          <Marker longitude={72.8777} latitude={19.0760}>
+            <div className="w-5 h-5 rounded-full bg-blue-600 border-2 border-white shadow-lg" />
+          </Marker>
+        </Map>
       </div>
 
       {/* Bottom sheet */}
