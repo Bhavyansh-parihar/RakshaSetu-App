@@ -13,7 +13,8 @@ export class WeatherService {
   async analyzeWeatherAnomaly(openWeatherData: number[]) {
     try {
       // Send 12x8 feature array to Python ML Service on port 8000
-      const response = await axios.post('http://localhost:8000/predict', {
+      const baseUrl = process.env.MODEL_API_URL || 'http://localhost:8000';
+      const response = await axios.post(`${baseUrl}/predict`, {
         features: openWeatherData
       });
       

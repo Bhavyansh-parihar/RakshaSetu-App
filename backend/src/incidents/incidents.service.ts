@@ -58,7 +58,8 @@ export class IncidentsService {
 
     if (mediaUrl || data.imageBase64) {
       try {
-        const response = await axios.post('http://localhost:8000/detect-anomaly', {
+        const baseUrl = process.env.MODEL_API_URL || 'http://localhost:8000';
+        const response = await axios.post(`${baseUrl}/detect-anomaly`, {
           image_data: mediaUrl || data.imageBase64,
           model_type: data.type === 'fire' ? 'fire' : 'fire'
         }, { timeout: 2000 });
