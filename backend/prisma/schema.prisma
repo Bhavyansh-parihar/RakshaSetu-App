@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CITIZEN
+  RESPONDER
+  GOVERNMENT
+  ADMIN
+}
+
+enum IncidentStatus {
+  PENDING
+  ACCEPTED
+  EN_ROUTE
+  REACHED
+  COMPLETED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role                  Role     @default(CITIZEN)
+  emergencyContactEmail String?
+  
+  // PostGIS location
+  latitude  Float?
+  longitude Float?
+  
+  isApproved Boolean @default(false) // For Responders
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  incidentsReported Incident[] @relation("ReportedIncidents")
+  incidentsAssigned Incident[] @relation("AssignedIncidents")
+  fakeReports       FakeReport[]
+}
+
+model Incident {
+  id              String         @id @default(uuid())
+  description     String?
+  mediaUrl        String?
+  latitude        Float
+  longitude       Float
+  
+  aiConfidence    Float?         // 0 to 1
+  priorityScore   Int?           // 1 to 10
+  status          IncidentStatus @default(PENDING)
+  
+  citizenId       String
+  citizen         User           @relation("ReportedIncidents", fields: [citizenId], references: [id])
+  
+  responderId     String?
+  responder       User?          @relation("AssignedIncidents", fields: [responderId], references: [id])
+  
+  fakeReports     FakeReport[]
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Shelter {
+  id        String   @id @default(uuid())
+  name      String
+  capacity  Int
+  latitude  Float
+  longitude Float
+  contact   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FakeReport {
+  id              String   @id @default(uuid())
+  reason          String?
+  
+  incidentId      String
+  incident        Incident @relation(fields: [incidentId], references: [id])
+  
+  reporterId      String
+  reporter        User     @relation(fields: [reporterId], references: [id])
+  
+  createdAt       DateTime @default(now())
+}

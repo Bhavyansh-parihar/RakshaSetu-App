@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: #111827;
+  --color-surface: #1A2234;
+  --color-card: #1E2D42;
+  --color-card-elevated: #243350;
+  --color-border: #2D4160;
+  --color-border-bright: #3A5270;
+  --color-foreground: #F0F5FA;
+  --color-foreground-muted: #8BAFC8;
+  --color-foreground-dim: #4D6E8A;
+  --color-emergency: #FF3B30;
+  --color-emergency-dim: #FF3B3020;
+  --color-amber: #FFB800;
+  --color-amber-dim: #FFB80020;
+  --color-success: #30D158;
+  --color-success-dim: #30D15820;
+  --color-info: #0A84FF;
+  --color-info-dim: #0A84FF20;
+  --color-primary: #FF4F38;
+  --color-primary-foreground: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  background: #060B10;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #EEF3F8;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1E2E3F; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #2A3E52; }
+
+/* Custom animations */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+@keyframes slide-up {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 1.4s ease-out infinite;
+}
+.animate-blink {
+  animation: blink 1s ease-in-out infinite;
+}
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out both;
+}
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out both;
+}

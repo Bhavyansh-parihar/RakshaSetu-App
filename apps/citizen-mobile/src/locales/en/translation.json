@@ -1,0 +1,33 @@
+{
+  "language_screen": {
+    "title": "Choose Language",
+    "subtitle": "Select your preferred language",
+    "en": "English",
+    "en_sub": "Continue in English",
+    "hi": "हिन्दी",
+    "hi_sub": "Continue in Hindi",
+    "continue": "Continue →",
+    "footer": "You can change this later in Settings"
+  },
+  "bottom_nav": {
+    "home": "Home",
+    "shelters": "Shelters",
+    "report": "Report",
+    "chatbot": "Chatbot",
+    "profile": "Profile"
+  },
+  "home": {
+    "greeting": "Stay Safe, Bhavyansh!",
+    "location": "Mumbai, Maharashtra",
+    "sos_idle": "SLIDE FOR SOS",
+    "sos_holding": "HOLD TO CONFIRM",
+    "sos_sent": "SOS ACTIVATED",
+    "weather_alert": "HEAVY RAINFALL WARNING",
+    "weather_desc": "Expect severe waterlogging in low-lying areas. Stay indoors if possible.",
+    "quick_actions": "Quick Actions",
+    "nearby_shelters": "Nearby Shelters",
+    "report_incident": "Report Incident",
+    "guidelines": "Disaster Guidelines",
+    "emergency_contacts": "Emergency Contacts"
+  }
+}

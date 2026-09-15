@@ -1,0 +1,11 @@
+{
+  "title": "rakshasetu",
+  "description": "This web application offers a user-friendly interface for designing and prototyping UI elements, streamlining the creative process for designers and developers.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

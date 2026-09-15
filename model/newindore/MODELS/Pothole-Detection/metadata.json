@@ -1,0 +1,10 @@
+{
+  "name": "YOLOv9c Pothole Detector",
+  "version": "1.0",
+  "framework": "Ultralytics",
+  "task": "Pothole Detection",
+  "weights": "yolov9c.pt",
+  "input": ["image", "video"],
+  "output": ["bbox", "confidence"],
+  "status": "ready"
+}

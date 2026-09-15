@@ -1,0 +1,10 @@
+{
+  "description": "Empowering emergency responders with real-time SOS alerts, incident management, and navigation tools to enhance rescue efficiency and citizen safety.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

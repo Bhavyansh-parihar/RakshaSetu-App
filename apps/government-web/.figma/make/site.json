@@ -1,0 +1,10 @@
+{
+  "description": "This disaster command center dashboard empowers government agencies with real-time incident mapping, resource allocation, and analytics to enhance emergency response efficiency.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
