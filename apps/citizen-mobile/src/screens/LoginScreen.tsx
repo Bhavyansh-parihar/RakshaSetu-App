@@ -129,13 +129,22 @@ export default function LoginScreen({ onDone }: { onDone: (token?: string) => vo
           disabled={loading}
           onClick={async () => {
             setLoading(true);
+            const API_URL = import.meta.env.VITE_API_URL || 'https://rakshasetu-app-8dvk.onrender.com';
+            const loginEmail = tab === "email" ? email.trim() : "test@test.com";
+            
+            // AbortController for 60s timeout (handles Render cold starts)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 60000);
+            
             try {
-              const loginEmail = tab === "email" ? email.trim() : "test@test.com";
-              const response = await fetch("https://rakshasetu-app-8dvk.onrender.com/auth/login", {
+              const response = await fetch(`${API_URL}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: loginEmail, password: password })
+                body: JSON.stringify({ email: loginEmail, password: password }),
+                signal: controller.signal,
               });
+              clearTimeout(timeoutId);
+              
               if (response.ok) {
                 const resData = await response.json();
                 localStorage.setItem("token", resData.access_token);
@@ -143,10 +152,14 @@ export default function LoginScreen({ onDone }: { onDone: (token?: string) => vo
               } else {
                 alert("Login Failed. Use test@test.com and password: test");
               }
-            } catch (err) {
-              console.error(err);
-              // Fallback for offline prototype
-              onDone();
+            } catch (err: any) {
+              clearTimeout(timeoutId);
+              if (err?.name === 'AbortError') {
+                alert("Server is taking too long to respond (Render cold start). Please try again in 10 seconds.");
+              } else {
+                console.error("Login error:", err);
+                alert("Network error. Please check your connection and try again.");
+              }
             } finally {
               setLoading(false);
             }
@@ -154,7 +167,7 @@ export default function LoginScreen({ onDone }: { onDone: (token?: string) => vo
           className="w-full py-4 rounded-2xl text-white font-semibold text-base transition-transform active:scale-95 mb-4 shadow-md shadow-blue-500/20"
           style={{ background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)" }}
         >
-          {loading ? "Signing In..." : "Sign In Securely"}
+          {loading ? "⏳ Connecting to Server..." : "Sign In Securely"}
         </button>
 
         <p className="text-center text-sm text-slate-500">

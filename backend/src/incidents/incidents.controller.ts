@@ -34,13 +34,12 @@ export class IncidentsController {
     }
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Post('sos')
   async reportSOS(@Request() req, @Body() body: any) {
-    // Assuming JWT auth middleware populates req.user
-    const citizenId = req.user?.id || body.citizenId; // Fallback for testing
-    if (!citizenId) {
-      throw new HttpException('Citizen ID is required', HttpStatus.BAD_REQUEST);
+    // Try to extract user from JWT if present, but don't block if missing
+    const citizenId = req.user?.id || body.citizenId || 'anonymous-citizen';
+    if (!citizenId || citizenId === 'anonymous-citizen') {
+      console.warn('SOS received without valid citizenId — using fallback');
     }
     return this.incidentsService.reportSOS(citizenId, body);
   }
