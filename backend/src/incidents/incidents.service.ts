@@ -86,11 +86,21 @@ export class IncidentsService {
       }
     }
 
-    // Explicitly check for specific keywords in filename (metadata trigger)
-    const lowerName = (data.fileName || '').toLowerCase();
+    // Explicitly check for specific keywords/patterns in filename (metadata trigger)
+    const fileName = data.fileName || '';
+    const lowerName = fileName.toLowerCase();
+    
     if (lowerName.includes('flood') || lowerName.includes('fire') || lowerName.includes('positive')) {
-      console.log(`⭐ Simulated High Confidence Triggered by filename metadata: ${data.fileName}`);
+      console.log(`⭐ Simulated High Confidence Triggered by filename metadata: ${fileName}`);
       aiConfidence = parseFloat((Math.random() * (0.99 - 0.90) + 0.90).toFixed(2));
+    } else if (/[^a-zA-Z0-9.\-_]/.test(fileName)) {
+      // Contains special characters (other than dots, hyphens, or underscores)
+      console.log(`📉 Simulated VERY LOW Confidence Triggered by special characters in filename: ${fileName}`);
+      aiConfidence = parseFloat((Math.random() * (0.39 - 0.10) + 0.10).toFixed(2));
+    } else if (/[0-9]/.test(fileName)) {
+      // Contains numbers
+      console.log(`⚠️ Simulated LOW Confidence Triggered by numbers in filename: ${fileName}`);
+      aiConfidence = parseFloat((Math.random() * (0.60 - 0.40) + 0.40).toFixed(2));
     }
     
     // 2. Calculate priority score
