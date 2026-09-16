@@ -1,7 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useCitizenStore } from "../store/useCitizenStore";
 import axios from "axios";
-
 const incidentTypes = [
   { id: "flood", icon: "🌊", label: "Flood", color: "#2563EB" },
   { id: "fire", icon: "🔥", label: "Fire", color: "#DC2626" },
@@ -16,10 +15,58 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [confidence, setConfidence] = useState(0);
-  const [voice, setVoice] = useState(false);
   
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [description, setDescription] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+  const handleVoiceToggle = async () => {
+    if (isRecording) {
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop();
+      }
+      setIsRecording(false);
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorderRef.current = new MediaRecorder(stream);
+        audioChunksRef.current = [];
+
+        mediaRecorderRef.current.ondataavailable = (e) => {
+          if (e.data.size > 0) audioChunksRef.current.push(e.data);
+        };
+
+        mediaRecorderRef.current.onstop = async () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          const formData = new FormData();
+          formData.append('audio', audioBlob, 'recording.webm');
+          
+          try {
+             setDescription(prev => prev + (prev ? " " : "") + "(Transcribing...)");
+             const res = await axios.post("http://192.168.1.159:3000/incidents/transcribe", formData, {
+               headers: { 'Content-Type': 'multipart/form-data' }
+             });
+             if (res.data && res.data.text) {
+               setDescription(prev => prev.replace("(Transcribing...)", "").trim() + " " + res.data.text);
+             }
+          } catch(err) {
+             console.error("Transcription failed", err);
+             setDescription(prev => prev.replace("(Transcribing...)", "").trim());
+             alert("Failed to transcribe audio. Is the backend running?");
+          }
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorderRef.current.start();
+        setIsRecording(true);
+      } catch (err) {
+        console.error("Microphone access denied", err);
+        alert("Please enable microphone access.");
+      }
+    }
+  };
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const token = useCitizenStore(state => state.token);
@@ -232,12 +279,12 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
             />
             <div className="flex items-center gap-2 px-4 pb-3 border-t border-slate-100 pt-2">
               <button
-                onClick={() => setVoice(!voice)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${voice ? "bg-red-500 text-white" : "bg-slate-100 text-slate-600"}`}
+                onClick={handleVoiceToggle}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${isRecording ? "bg-red-500 text-white" : "bg-slate-100 text-slate-600"}`}
               >
-                🎙️ {voice ? "Listening..." : "Voice Input"}
+                🎙️ {isRecording ? "Stop Recording" : "Voice Input"}
               </button>
-              {voice && (
+              {isRecording && (
                 <div className="flex items-end gap-0.5 h-5">
                   {[1,2,3,4,5,6,7].map((i) => (
                     <div key={i} className="wave-bar w-1 bg-red-400 rounded-full" style={{ height: "4px" }} />
