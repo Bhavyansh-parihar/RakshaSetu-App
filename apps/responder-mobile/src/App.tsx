@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useResponderStore } from "./store/useResponderStore";
 import Login from "./screens/Login";
 import Dashboard from "./screens/Dashboard";
@@ -87,6 +87,8 @@ const SCREENS_WITHOUT_NAV: Screen[] = ["login", "navigation"];
 export default function App() {
   const [screen, setScreen] = useState<Screen>("login");
   const connectSocket = useResponderStore((state) => state.connectSocket);
+  const highPriorityQueue = useResponderStore((state) => state.highPriorityQueue);
+  const prevQueueLength = useRef(0);
 
   useEffect(() => {
     const token = localStorage.getItem("responder_token");
@@ -94,6 +96,19 @@ export default function App() {
       connectSocket(token);
     }
   }, [connectSocket]);
+
+  // Auto-navigate to incoming SOS screen when a new SOS arrives
+  useEffect(() => {
+    if (highPriorityQueue.length > prevQueueLength.current && screen !== "login") {
+      console.log("🚨 New SOS detected — auto-navigating to incoming SOS screen");
+      // Try to vibrate the device as an alert
+      if (navigator.vibrate) {
+        navigator.vibrate([300, 100, 300, 100, 300]);
+      }
+      setScreen("incoming-sos");
+    }
+    prevQueueLength.current = highPriorityQueue.length;
+  }, [highPriorityQueue.length, screen]);
 
   const navigate = (s: string) => setScreen(s as Screen);
   const showNav = !SCREENS_WITHOUT_NAV.includes(screen);
