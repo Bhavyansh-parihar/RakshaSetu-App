@@ -26,7 +26,23 @@ export class AuthService {
   }
 
   async login(data: any) {
-    const user = await this.prisma.user.findUnique({ where: { email: data.email } });
+    let user = await this.prisma.user.findUnique({ where: { email: data.email } });
+    
+    // Auto-seed test users if they don't exist in the fresh Render database
+    if (!user && (data.email === 'test@test.com' || data.email === 'responder@test.com')) {
+      const hashedPassword = await bcrypt.hash('test', 10);
+      user = await this.prisma.user.create({
+        data: {
+          email: data.email,
+          name: data.email === 'test@test.com' ? 'Test Citizen' : 'Test Responder',
+          password: hashedPassword,
+          role: data.email === 'test@test.com' ? 'CITIZEN' : 'RESPONDER',
+          isApproved: true,
+          phone: '9876543210'
+        }
+      });
+    }
+
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -36,8 +52,13 @@ export class AuthService {
     }
 
     // Check credentials: accept 'test' for test@test.com or allow demo credentials
-    if (data.email === 'test@test.com' && data.password && data.password !== 'test') {
+    if ((data.email === 'test@test.com' || data.email === 'responder@test.com') && data.password !== 'test') {
       throw new UnauthorizedException('Invalid credentials');
+    } else if (data.email !== 'test@test.com' && data.email !== 'responder@test.com') {
+      const isMatch = await bcrypt.compare(data.password, user.password);
+      if (!isMatch) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
     }
 
     const payload = { id: user.id, email: user.email, role: user.role };
