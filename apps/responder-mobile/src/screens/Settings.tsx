@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "../localization/LanguageContext";
 
 export default function Settings() {
+  const { t } = useTranslation();
+  const { currentLang, setLanguage } = useLanguage();
   const [notifications, setNotifications] = useState(true);
   const [sound, setSound] = useState(true);
   const [vibrate, setVibrate] = useState(true);
@@ -37,11 +41,30 @@ export default function Settings() {
   return (
     <div className="flex flex-col h-full bg-[#111827] overflow-y-auto">
       <div className="bg-[#1A2234] border-b border-[#2D4160] px-4 pt-10 pb-4">
-        <h1 className="font-display text-3xl font-800 text-[#F0F5FA] tracking-wide">SETTINGS</h1>
+        <h1 className="font-display text-3xl font-800 text-[#F0F5FA] tracking-wide">{t("settings.title").toUpperCase()}</h1>
         <p className="text-[#8BAFC8] text-xs mt-0.5">RakshaSetu Field Responder v3.2.1</p>
       </div>
 
       <div className="flex flex-col gap-4 px-4 py-4">
+
+        {/* Language Section */}
+        <Section title={t("settings.language").toUpperCase()}>
+          <div className="flex items-center justify-between px-4 py-3.5">
+            <div>
+              <p className="text-[#F0F5FA] text-sm font-600">{t("settings.appLanguage")}</p>
+              <p className="text-[#4D6E8A] text-xs mt-0.5">{t("settings.currently")} {currentLang === "hi" ? "हिन्दी" : "English"}</p>
+            </div>
+            <div className="flex bg-[#2D4160] rounded-xl p-0.5">
+              {(["en", "hi"] as const).map((l) => (
+                <button key={l} onClick={() => setLanguage(l)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${currentLang === l ? "bg-[#FF4F38] text-white" : "text-[#8BAFC8]"}`}>
+                  {l === "en" ? "EN" : "हि"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </Section>
+
         <Section title="NOTIFICATIONS">
           <Row label="Push Notifications" sub="SOS, reassignments, alerts" right={<Toggle on={notifications} toggle={() => setNotifications(!notifications)} />} />
           <Row label="Alert Sound" sub="Loud alarm for incoming SOS" right={<Toggle on={sound} toggle={() => setSound(!sound)} />} />
@@ -80,11 +103,11 @@ export default function Settings() {
         <Section title="ACCOUNT">
           <Row label="Change Password" right={<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#4D6E8A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>} />
           <Row label="Report Issue" right={<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#4D6E8A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>} />
-          <Row label="Privacy Policy" right={<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#4D6E8A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>} />
+          <Row label={t("settings.privacy")} right={<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#4D6E8A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>} />
         </Section>
 
         <button className="w-full bg-[#FF3B3015] border border-[#FF3B3040] text-[#FF3B30] font-display text-lg font-700 tracking-wider py-4 rounded-2xl active:scale-95 transition-transform">
-          SIGN OUT
+          {t("settings.logout").toUpperCase()}
         </button>
         <div className="pb-4" />
       </div>

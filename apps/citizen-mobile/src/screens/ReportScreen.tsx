@@ -1,71 +1,65 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "../localization/LanguageContext";
 import { useCitizenStore } from "../store/useCitizenStore";
 import axios from "axios";
-const incidentTypes = [
-  { id: "flood", icon: "🌊", label: "Flood", color: "#2563EB" },
-  { id: "fire", icon: "🔥", label: "Fire", color: "#DC2626" },
-  { id: "earthquake", icon: "🏔️", label: "Earthquake", color: "#EA580C" },
-  { id: "medical", icon: "🚑", label: "Medical", color: "#16A34A" },
-  { id: "accident", icon: "🚗", label: "Accident", color: "#7C3AED" },
-  { id: "other", icon: "❗", label: "Other", color: "#64748B" },
-];
+const incidentTypeIds = ["flood", "fire", "earthquake", "medical", "accident", "other"] as const;
+const incidentIcons: Record<string, string> = {
+  flood: "🌊", fire: "🔥", earthquake: "🏔️",
+  medical: "🚑", accident: "🚗", other: "❗"
+};
+const incidentColors: Record<string, string> = {
+  flood: "#2563EB", fire: "#DC2626", earthquake: "#EA580C",
+  medical: "#16A34A", accident: "#7C3AED", other: "#64748B"
+};
 
 export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void; onSubmit: () => void }) {
+  const { t } = useTranslation();
+  const { currentLang } = useLanguage();
   const [selected, setSelected] = useState("flood");
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [confidence, setConfidence] = useState(0);
-  
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useRef<any>(null);
 
-  const handleVoiceToggle = async () => {
+  // Setup Web Speech API for voice input (free, works offline)
+  useEffect(() => {
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) return;
+    const recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = currentLang === "hi" ? "hi-IN" : "en-IN";
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((r: any) => r[0].transcript)
+        .join("");
+      setDescription(transcript);
+    };
+    recognition.onend = () => setIsRecording(false);
+    recognition.onerror = () => {
+      setIsRecording(false);
+      alert(t("permissions.micRequired"));
+    };
+    recognitionRef.current = recognition;
+  }, [currentLang]);
+
+  const handleVoiceToggle = () => {
+    const recognition = recognitionRef.current;
+    if (!recognition) {
+      alert(t("permissions.micRequired"));
+      return;
+    }
     if (isRecording) {
-      if (mediaRecorderRef.current) {
-        mediaRecorderRef.current.stop();
-      }
+      recognition.stop();
       setIsRecording(false);
     } else {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorderRef.current = new MediaRecorder(stream);
-        audioChunksRef.current = [];
-
-        mediaRecorderRef.current.ondataavailable = (e) => {
-          if (e.data.size > 0) audioChunksRef.current.push(e.data);
-        };
-
-        mediaRecorderRef.current.onstop = async () => {
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-          const formData = new FormData();
-          formData.append('audio', audioBlob, 'recording.webm');
-          
-          try {
-             setDescription(prev => prev + (prev ? " " : "") + "(Transcribing...)");
-      const API_URL = import.meta.env.VITE_API_URL || 'https://rakshasetu-app-8dvk.onrender.com';
-      const res = await axios.post(`${API_URL}/incidents/transcribe`, formData, {
-               headers: { 'Content-Type': 'multipart/form-data' }
-             });
-             if (res.data && res.data.text) {
-               setDescription(prev => prev.replace("(Transcribing...)", "").trim() + " " + res.data.text);
-             }
-          } catch(err) {
-             console.error("Transcription failed", err);
-             setDescription(prev => prev.replace("(Transcribing...)", "").trim());
-             alert("Failed to transcribe audio. Is the backend running?");
-          }
-          stream.getTracks().forEach(track => track.stop());
-        };
-
-        mediaRecorderRef.current.start();
-        setIsRecording(true);
-      } catch (err) {
-        console.error("Microphone access denied", err);
-        alert("Please enable microphone access.");
-      }
+      recognition.lang = currentLang === "hi" ? "hi-IN" : "en-IN";
+      recognition.start();
+      setIsRecording(true);
     }
   };
   
@@ -167,27 +161,27 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
           </svg>
         </button>
         <div>
-          <h1 className="font-bold text-slate-900 text-lg">Report Incident</h1>
-          <p className="text-xs text-slate-400">Help responders reach you faster</p>
+          <h1 className="font-bold text-slate-900 text-lg">{t("report.title")}</h1>
+          <p className="text-xs text-slate-400">{t("report.subtitle")}</p>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto" style={{ paddingBottom: 80 }}>
         {/* Incident type */}
         <div className="px-4 pt-5 pb-3">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Incident Type</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">{t("report.incidentType")}</p>
           <div className="grid grid-cols-3 gap-2.5">
-            {incidentTypes.map((type) => (
+            {incidentTypeIds.map((id) => (
               <button
-                key={type.id}
-                onClick={() => setSelected(type.id)}
+                key={id}
+                onClick={() => setSelected(id)}
                 className={`p-3 rounded-2xl border-2 flex flex-col items-center gap-1.5 transition-all ${
-                  selected === type.id ? "border-current shadow-sm" : "border-slate-200 bg-white"
+                  selected === id ? "border-current shadow-sm" : "border-slate-200 bg-white"
                 }`}
-                style={selected === type.id ? { borderColor: type.color, background: type.color + "11" } : {}}
+                style={selected === id ? { borderColor: incidentColors[id], background: incidentColors[id] + "11" } : {}}
               >
-                <span className="text-2xl">{type.icon}</span>
-                <p className="text-xs font-semibold" style={{ color: selected === type.id ? type.color : "#64748b" }}>{type.label}</p>
+                <span className="text-2xl">{incidentIcons[id]}</span>
+                <p className="text-xs font-semibold" style={{ color: selected === id ? incidentColors[id] : "#64748b" }}>{t(`report.${id}`)}</p>
               </button>
             ))}
           </div>
@@ -259,11 +253,11 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
                   ))}
                 </div>
                 {/* AI confidence */}
-                <div className="mt-3 p-2.5 bg-blue-50 rounded-xl">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <p className="text-xs font-semibold text-blue-700">AI Confidence Score</p>
-                    <p className="text-sm font-black text-blue-700">{confidence}%</p>
-                  </div>
+                  <div className="mt-3 p-2.5 bg-blue-50 rounded-xl">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <p className="text-xs font-semibold text-blue-700">{t("report.aiConfidence")}</p>
+                      <p className="text-sm font-black text-blue-700">{confidence}%</p>
+                    </div>
                   <div className="h-2 bg-blue-100 rounded-full overflow-hidden">
                     <div className="h-full bg-blue-500 rounded-full" style={{ width: `${confidence}%` }} />
                   </div>
@@ -275,10 +269,10 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
 
         {/* Description */}
         <div className="px-4 mb-4">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Description</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">{t("report.description")}</p>
           <div className="bg-white border-2 border-slate-200 rounded-2xl overflow-hidden focus-within:border-blue-500 transition-colors">
             <textarea
-              placeholder="Describe the incident in detail..."
+              placeholder={t("report.descPlaceholder")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-4 pt-3 pb-2 text-sm text-slate-700 outline-none bg-transparent resize-none"
@@ -289,7 +283,7 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
                 onClick={handleVoiceToggle}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${isRecording ? "bg-red-500 text-white" : "bg-slate-100 text-slate-600"}`}
               >
-                🎙️ {isRecording ? "Stop Recording" : "Voice Input"}
+                🎙️ {isRecording ? t("report.stopRecording") : t("report.voiceInput")}
               </button>
               {isRecording && (
                 <div className="flex items-end gap-0.5 h-5">
@@ -304,11 +298,13 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
 
         {/* Priority */}
         <div className="px-4 mb-6">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Priority Level</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">{t("report.priorityLevel")}</p>
           <div className="flex gap-2">
-            {[{ l: "Low", c: "#16A34A" }, { l: "Medium", c: "#EA580C" }, { l: "Critical", c: "#DC2626" }].map((p) => (
-              <button key={p.l} className="flex-1 py-2.5 rounded-xl border-2 text-xs font-bold" style={{ borderColor: p.c, color: p.c }}>
-                {p.l}
+            {(["low", "medium", "critical"] as const).map((p) => (
+              <button key={p} className="flex-1 py-2.5 rounded-xl border-2 text-xs font-bold"
+                style={{ borderColor: p === "low" ? "#16A34A" : p === "medium" ? "#EA580C" : "#DC2626",
+                         color:        p === "low" ? "#16A34A" : p === "medium" ? "#EA580C" : "#DC2626" }}>
+                {t(`report.${p}`)}
               </button>
             ))}
           </div>
@@ -320,7 +316,7 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
             className="w-full py-4 rounded-2xl text-white font-bold text-base transition-transform active:scale-95"
             style={{ background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)" }}
           >
-            Submit Report
+            {t("report.submitReport")}
           </button>
         </div>
       </div>

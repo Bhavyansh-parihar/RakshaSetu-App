@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useCitizenStore } from "./store/useCitizenStore";
+import { LanguageProvider } from "./localization/LanguageContext";
+import "./localization/i18n"; // initialize i18n at app root
 import PhoneFrame from "./components/PhoneFrame";
 import BottomNav from "./components/BottomNav";
 import DrawerMenu from "./components/DrawerMenu";
@@ -90,57 +92,59 @@ export default function App() {
   const showBottomNav = bottomNavScreens.has(screen);
 
   return (
-    <>
-      {/* Status bar text color context */}
-      <div className="absolute inset-0 bg-white">
-        {/* Screens */}
-        {screen === "splash" && <SplashScreen onDone={() => navigate("language")} />}
-        {screen === "language" && <LanguageScreen onDone={() => navigate("login")} />}
-        {screen === "login" && <LoginScreen onDone={(token?: string) => {
-          if (token) {
-            setToken(token);
-            connectSocket(token);
-          }
-          navigate("home");
-        }} />}
-        {screen === "home" && (
-          <HomeScreen
-            onNavigate={(s) => navigate(s as Screen)}
-            onMenu={() => setDrawerOpen(true)}
-          />
-        )}
-        {screen === "shelters" && <SheltersScreen onBack={goBack} />}
-        {screen === "report" && <ReportScreen onBack={goBack} onSubmit={() => navigate("history")} />}
-        {screen === "history" && <HistoryScreen onBack={goBack} onGrievance={() => navigate("grievance")} />}
-        {screen === "chatbot" && <ChatbotScreen onBack={goBack} />}
-        {screen === "guidelines" && <GuidelinesScreen onBack={goBack} />}
-        {screen === "contacts" && <ContactsScreen onBack={goBack} />}
-        {screen === "helpline" && <HelplineScreen onBack={goBack} />}
-        {screen === "notifications" && <NotificationsScreen onBack={goBack} />}
-        {screen === "profile" && <ProfileScreen onBack={goBack} onNavigate={(s) => navigate(s as Screen)} />}
-        {screen === "settings" && <SettingsScreen onBack={goBack} />}
-        {screen === "grievance" && <GrievanceScreen onBack={goBack} />}
+    <LanguageProvider>
+      <>
+        {/* Status bar text color context */}
+        <div className="absolute inset-0 bg-white">
+          {/* Screens */}
+          {screen === "splash" && <SplashScreen onDone={() => navigate("language")} />}
+          {screen === "language" && <LanguageScreen onDone={() => navigate("login")} />}
+          {screen === "login" && <LoginScreen onDone={(token?: string) => {
+            if (token) {
+              setToken(token);
+              connectSocket(token);
+            }
+            navigate("home");
+          }} />}
+          {screen === "home" && (
+            <HomeScreen
+              onNavigate={(s) => navigate(s as Screen)}
+              onMenu={() => setDrawerOpen(true)}
+            />
+          )}
+          {screen === "shelters" && <SheltersScreen onBack={goBack} />}
+          {screen === "report" && <ReportScreen onBack={goBack} onSubmit={() => navigate("history")} />}
+          {screen === "history" && <HistoryScreen onBack={goBack} onGrievance={() => navigate("grievance")} />}
+          {screen === "chatbot" && <ChatbotScreen onBack={goBack} />}
+          {screen === "guidelines" && <GuidelinesScreen onBack={goBack} />}
+          {screen === "contacts" && <ContactsScreen onBack={goBack} />}
+          {screen === "helpline" && <HelplineScreen onBack={goBack} />}
+          {screen === "notifications" && <NotificationsScreen onBack={goBack} />}
+          {screen === "profile" && <ProfileScreen onBack={goBack} onNavigate={(s) => navigate(s as Screen)} />}
+          {screen === "settings" && <SettingsScreen onBack={goBack} />}
+          {screen === "grievance" && <GrievanceScreen onBack={goBack} />}
 
-        {/* Bottom navigation */}
-        {showBottomNav && (
-          <BottomNav
-            active={screen}
-            onNavigate={(s) => {
-              setHistory([]);
-              setScreen(s as Screen);
-            }}
-          />
-        )}
+          {/* Bottom navigation */}
+          {showBottomNav && (
+            <BottomNav
+              active={screen}
+              onNavigate={(s) => {
+                setHistory([]);
+                setScreen(s as Screen);
+              }}
+            />
+          )}
 
-        {/* Drawer */}
-        {drawerOpen && (
-          <DrawerMenu
-            active={screen}
-            onNavigate={(s) => navigate(s as Screen)}
-            onClose={() => setDrawerOpen(false)}
-          />
-        )}
-      </div>
-    </>
+          {/* Drawer */}
+          {drawerOpen && (
+            <DrawerMenu
+              active={screen}
+              onNavigate={(s) => navigate(s as Screen)}
+              onClose={() => setDrawerOpen(false)}
+            />
+          )}
+        </div>
+      </>
+    </LanguageProvider>
   );
 }

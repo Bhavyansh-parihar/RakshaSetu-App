@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "../localization/LanguageContext";
 import { useResponderStore } from "../store/useResponderStore";
 
 interface Props {
@@ -6,6 +8,8 @@ interface Props {
 }
 
 export default function IncomingSOS({ navigate }: Props) {
+  const { t } = useTranslation();
+  const { currentLang } = useLanguage();
   const [accepting, setAccepting] = useState(false);
   const incident = useResponderStore(state => state.selectedIncident || state.highPriorityQueue[0]);
 
@@ -18,12 +22,12 @@ export default function IncomingSOS({ navigate }: Props) {
   const aiScore = Math.round((incident?.aiConfidence ?? 0.87) * 100);
 
   const statItems = [
-    { label: "PRIORITY", value: `${priorityVal} / 10`, color: "#FF3B30", icon: "⚡" },
-    { label: "AI CONFIDENCE", value: `${aiScore}%`, color: "#30D158", icon: "🤖" },
-    { label: "INCIDENT ID", value: incident?.id || "INC-LIVE", color: "#0A84FF", icon: "🆔" },
-    { label: "TYPE", value: (incident?.type ? incident.type.toUpperCase() : "SOS"), color: "#FFB800", icon: "⚠️" },
-    { label: "STATUS", value: incident?.status || "PENDING", color: "#30D158", icon: "📍" },
-    { label: "TIMESTAMP", value: "Live Alert", color: "#8BAFC8", icon: "🕐" },
+    { label: currentLang === "hi" ? "प्राथमिकता" : "PRIORITY", value: `${priorityVal} / 10`, color: "#FF3B30", icon: "⚡" },
+    { label: currentLang === "hi" ? "AI विश्वास" : "AI CONFIDENCE", value: `${aiScore}%`, color: "#30D158", icon: "🤖" },
+    { label: currentLang === "hi" ? "घटना ID" : "INCIDENT ID", value: incident?.id || "INC-LIVE", color: "#0A84FF", icon: "🆔" },
+    { label: currentLang === "hi" ? "प्रकार" : "TYPE", value: (incident?.type ? incident.type.toUpperCase() : "SOS"), color: "#FFB800", icon: "⚠️" },
+    { label: currentLang === "hi" ? "स्थिति" : "STATUS", value: incident?.status || "PENDING", color: "#30D158", icon: "📍" },
+    { label: currentLang === "hi" ? "समय" : "TIMESTAMP", value: currentLang === "hi" ? "लाइव अलर्ट" : "Live Alert", color: "#8BAFC8", icon: "🕐" },
   ];
 
   return (
@@ -133,7 +137,9 @@ export default function IncomingSOS({ navigate }: Props) {
             <div className="h-full bg-gradient-to-r from-[#30D158] to-[#5FE87E] rounded-full" style={{ width: `${aiScore}%` }} />
           </div>
           <p className="text-[#8BAFC8] text-xs mt-2">
-            {aiScore >= 70 ? "High confidence — auto-routed. Verified evidence uploaded." : "Borderline confidence — verification advised."}
+            {aiScore >= 70
+              ? (currentLang === "hi" ? "उच्च विश्वास — स्वचालित रूटेड। सत्यापित साक्ष्य अपलोड।" : "High confidence — auto-routed. Verified evidence uploaded.")
+              : (currentLang === "hi" ? "सीमांत विश्वास — सत्यापन की सलाह।" : "Borderline confidence — verification advised.")}
           </p>
         </div>
 
@@ -143,14 +149,14 @@ export default function IncomingSOS({ navigate }: Props) {
             onClick={() => navigate("dashboard")}
             className="flex-1 bg-[#1E2D42] border border-[#FF3B3040] text-[#FF3B30] font-display text-xl font-700 tracking-wider py-4 rounded-2xl active:scale-95 transition-transform"
           >
-            REJECT
+            {t("incoming_sos.reject").toUpperCase()}
           </button>
           <button
             onClick={handleAccept}
             className={`flex-1 font-display text-xl font-700 tracking-wider py-4 rounded-2xl active:scale-95 transition-all ${accepting ? "bg-[#30D158]" : "bg-[#FF4F38]"} text-white`}
             style={{ boxShadow: accepting ? "0 4px 24px #30D15840" : "0 4px 24px #FF4F3840" }}
           >
-            {accepting ? "ACCEPTED ✓" : "ACCEPT SOS"}
+            {accepting ? (currentLang === "hi" ? "स्वीकृत ✓" : "ACCEPTED ✓") : t("incoming_sos.accept").toUpperCase()}
           </button>
         </div>
       </div>

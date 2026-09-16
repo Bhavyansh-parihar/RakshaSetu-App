@@ -1,0 +1,133 @@
+{
+  "common": {
+    "appName": "RakshaSetu Responder",
+    "back": "Back",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "retry": "Retry",
+    "ok": "OK",
+    "loading": "Loading...",
+    "version": "Version 2.1.0 · Innovik Hackathon 2026"
+  },
+  "auth": {
+    "title": "RakshaSetu",
+    "subtitle": "Field Responder Portal",
+    "welcome": "Responder Login",
+    "signInSubtitle": "Sign in to access your mission dashboard",
+    "email": "Email Address",
+    "password": "Password",
+    "signIn": "Sign In Securely",
+    "signingIn": "⏳ Authenticating...",
+    "loginFailed": "Login failed. Please try again.",
+    "networkError": "Network error. Please check your connection."
+  },
+  "dashboard": {
+    "title": "Mission Control",
+    "subtitle": "Field Responder Dashboard",
+    "activeMissions": "Active Missions",
+    "completedToday": "Completed Today",
+    "incomingSOS": "Incoming SOS",
+    "weatherAlert": "Weather Alert",
+    "noMissions": "No active missions",
+    "online": "Online",
+    "offline": "Offline"
+  },
+  "incoming_sos": {
+    "title": "Incoming SOS Alert",
+    "subtitle": "Emergency assistance required",
+    "accept": "Accept Mission",
+    "reject": "Decline",
+    "citizenDetails": "Citizen Details",
+    "location": "Location",
+    "distance": "Distance",
+    "incidentType": "Incident Type",
+    "priority": "Priority",
+    "batteryLevel": "Battery Level",
+    "description": "Description",
+    "timeAgo": "ago",
+    "accepting": "Accepting..."
+  },
+  "active_rescue": {
+    "title": "Active Rescue",
+    "subtitle": "Mission in progress",
+    "enRoute": "En Route",
+    "reached": "Reached Location",
+    "rescueStarted": "Rescue Started",
+    "completeRescue": "Complete Rescue",
+    "citizenStatus": "Citizen Status",
+    "eta": "ETA",
+    "navigate": "Navigate",
+    "callCitizen": "Call Citizen",
+    "updateStatus": "Update Status"
+  },
+  "verification": {
+    "title": "AI Verification",
+    "subtitle": "Analyze incident report",
+    "confidence": "AI Confidence Score",
+    "genuine": "Mark as Genuine",
+    "fake": "Mark as Fake",
+    "pending": "Verification Pending",
+    "verified": "Verified",
+    "imageEvidence": "Image Evidence",
+    "noImage": "No image provided",
+    "metadataVerified": "Metadata Verified",
+    "location": "Location",
+    "timestamp": "Timestamp",
+    "device": "Device"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "missions": "Missions",
+    "shelters": "Shelters",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "noNotifications": "No notifications",
+    "newSOS": "New SOS Alert received.",
+    "missionCompleted": "Mission completed successfully.",
+    "weatherWarning": "Weather warning in your area."
+  },
+  "profile": {
+    "title": "Responder Profile",
+    "name": "Name",
+    "badgeId": "Badge ID",
+    "department": "Department",
+    "station": "Station",
+    "logout": "Logout",
+    "editProfile": "Edit Profile"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "appLanguage": "App Language",
+    "currently": "Currently:",
+    "notifications": "Notifications",
+    "about": "About RakshaSetu",
+    "privacy": "Privacy Policy",
+    "logout": "Logout"
+  },
+  "shelters": {
+    "title": "Nearby Shelters",
+    "open": "Open",
+    "closed": "Closed",
+    "capacity": "Capacity",
+    "distance": "Distance",
+    "getDirections": "Get Directions"
+  },
+  "completed": {
+    "title": "Mission Complete",
+    "subtitle": "Rescue operation finished",
+    "duration": "Duration",
+    "citizenSafe": "Citizen is Safe",
+    "feedback": "Mission Feedback",
+    "backToDashboard": "Back to Dashboard"
+  },
+  "errors": {
+    "networkError": "Network error. Please check your connection.",
+    "serverUnavailable": "Server unavailable. Please try again.",
+    "unknown": "Something went wrong. Please try again."
+  }
+}

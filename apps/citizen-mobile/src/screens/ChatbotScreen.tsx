@@ -1,35 +1,81 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "../localization/LanguageContext";
 import axios from "axios";
-
-const suggestions = ["Flood Safety", "Earthquake Tips", "First Aid", "Nearby Shelter", "SOS Help", "Evacuation Routes"];
 
 type Message = { from: "user" | "bot"; text: string };
 
-const initialMessages: Message[] = [
-  { from: "bot", text: "Hello Bhavyansh! I'm your RakshaSetu Survival Assistant, powered by Gemini. How can I help you stay safe today? 🛡️" },
-];
-
 export default function ChatbotScreen({ onBack }: { onBack: () => void }) {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const { t } = useTranslation();
+  const { currentLang, setLanguage } = useLanguage();
+
+  const getSuggestions = () => t("chatbot.suggestions", { returnObjects: true }) as string[];
+  const getInitialMsg = (): Message => ({ from: "bot", text: t("chatbot.initialMsg") });
+
+  const [messages, setMessages] = useState<Message[]>([getInitialMsg()]);
   const [input, setInput] = useState("");
-  const [lang, setLang] = useState<"en" | "hi">("en");
   const [listening, setListening] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
+
+  // Setup Web Speech API recognition
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = currentLang === "hi" ? "hi-IN" : "en-IN";
+
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((r: any) => r[0].transcript)
+        .join("");
+      setInput(transcript);
+    };
+
+    recognition.onend = () => setListening(false);
+    recognition.onerror = () => setListening(false);
+
+    recognitionRef.current = recognition;
+  }, [currentLang]);
+
+  const toggleListening = () => {
+    const recognition = recognitionRef.current;
+    if (!recognition) {
+      alert(t("permissions.micRequired"));
+      return;
+    }
+    if (listening) {
+      recognition.stop();
+      setListening(false);
+    } else {
+      recognition.lang = currentLang === "hi" ? "hi-IN" : "en-IN";
+      recognition.start();
+      setListening(true);
+    }
+  };
 
   const send = async (text: string) => {
     if (!text.trim()) return;
     const userMsg: Message = { from: "user", text };
-    
     setMessages((m) => [...m, userMsg]);
     setInput("");
     setIsTyping(true);
 
     try {
       const API_URL = import.meta.env.VITE_API_URL || "https://rakshasetu-app-8dvk.onrender.com";
-      const res = await axios.post(`${API_URL}/chatbot/ask`, { message: text });
+      const res = await axios.post(`${API_URL}/chatbot/ask`, { message: text, language: currentLang });
       setMessages((m) => [...m, { from: "bot", text: res.data.reply }]);
-    } catch (err) {
-      setMessages((m) => [...m, { from: "bot", text: "I'm having trouble connecting to the network right now. Stay safe! For immediate emergencies, press SOS." }]);
+    } catch {
+      setMessages((m) => [...m, { from: "bot", text: t("chatbot.errorMsg") }]);
     } finally {
       setIsTyping(false);
     }
@@ -47,17 +93,17 @@ export default function ChatbotScreen({ onBack }: { onBack: () => void }) {
           </button>
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-xl shadow">🤖</div>
           <div className="flex-1">
-            <p className="font-bold text-slate-900 text-sm">RakshaSetu Survival Assistant</p>
+            <p className="font-bold text-slate-900 text-sm">{t("chatbot.title")}</p>
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-green-400 rounded-full" />
-              <p className="text-xs text-green-600 font-medium">Online · Powered by Gemini</p>
+              <p className="text-xs text-green-600 font-medium">{t("chatbot.online")}</p>
             </div>
           </div>
-          {/* Language toggle */}
+          {/* Language toggle — drives global language */}
           <div className="flex bg-slate-100 rounded-xl p-0.5">
-            {["en", "hi"].map((l) => (
-              <button key={l} onClick={() => setLang(l as "en" | "hi")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${lang === l ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}>
+            {(["en", "hi"] as const).map((l) => (
+              <button key={l} onClick={() => setLanguage(l)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${currentLang === l ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}>
                 {l === "en" ? "EN" : "हि"}
               </button>
             ))}
@@ -86,22 +132,22 @@ export default function ChatbotScreen({ onBack }: { onBack: () => void }) {
         ))}
 
         {isTyping && (
-           <div className="flex gap-2 animate-fade-in">
-             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 text-sm mt-auto">🤖</div>
-             <div className="bg-slate-100 text-slate-800 px-4 py-3 rounded-2xl rounded-tl-sm text-sm flex gap-1 items-center">
-               <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-               <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-               <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-             </div>
-           </div>
+          <div className="flex gap-2 animate-fade-in">
+            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 text-sm mt-auto">🤖</div>
+            <div className="bg-slate-100 text-slate-800 px-4 py-3 rounded-2xl rounded-tl-sm text-sm flex gap-1 items-center">
+              <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
+          </div>
         )}
 
         {/* Suggestion chips */}
         {messages.length <= 2 && (
           <div>
-            <p className="text-xs text-slate-400 font-medium mb-2 text-center">Quick questions</p>
+            <p className="text-xs text-slate-400 font-medium mb-2 text-center">{t("chatbot.quickQuestions")}</p>
             <div className="flex flex-wrap gap-2 justify-center">
-              {suggestions.map((s) => (
+              {getSuggestions().map((s) => (
                 <button
                   key={s}
                   onClick={() => send(s)}
@@ -113,6 +159,7 @@ export default function ChatbotScreen({ onBack }: { onBack: () => void }) {
             </div>
           </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
@@ -120,7 +167,7 @@ export default function ChatbotScreen({ onBack }: { onBack: () => void }) {
         {listening && (
           <div className="flex items-center gap-2 px-4 py-2 mb-2 bg-red-50 rounded-xl border border-red-200">
             <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-            <p className="text-xs text-red-600 font-medium flex-1">Listening...</p>
+            <p className="text-xs text-red-600 font-medium flex-1">{t("chatbot.listening")}</p>
             <div className="flex items-end gap-0.5 h-4">
               {[1,2,3,4,5,6,7].map((i) => <div key={i} className="wave-bar w-1 bg-red-400 rounded-full" />)}
             </div>
@@ -132,12 +179,12 @@ export default function ChatbotScreen({ onBack }: { onBack: () => void }) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && send(input)}
-              placeholder={lang === "hi" ? "यहाँ टाइप करें..." : "Type a message..."}
+              placeholder={t("chatbot.placeholder")}
               className="flex-1 bg-transparent text-sm text-slate-700 outline-none"
             />
           </div>
           <button
-            onClick={() => setListening((v) => !v)}
+            onClick={toggleListening}
             className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${listening ? "bg-red-500" : "bg-slate-200"}`}
           >
             <svg width="16" height="20" viewBox="0 0 16 20" fill="none" stroke={listening ? "white" : "#64748b"} strokeWidth="1.8" strokeLinecap="round">

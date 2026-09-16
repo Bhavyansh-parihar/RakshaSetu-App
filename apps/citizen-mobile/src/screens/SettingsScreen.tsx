@@ -1,20 +1,23 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "../localization/LanguageContext";
 
-type Toggle = { label: string; desc: string; icon: string; val: boolean };
+type Toggle = { labelKey: string; descKey: string; icon: string; val: boolean };
 
 export default function SettingsScreen({ onBack }: { onBack: () => void }) {
+  const { t } = useTranslation();
+  const { currentLang, setLanguage } = useLanguage();
+
   const [toggles, setToggles] = useState<Toggle[]>([
-    { label: "Push Notifications", desc: "Alerts for disasters & SOS updates", icon: "🔔", val: true },
-    { label: "Location Services", desc: "Required for shelter & SOS features", icon: "📍", val: true },
-    { label: "Dark Mode", desc: "Switch to dark interface", icon: "🌙", val: false },
-    { label: "Microphone", desc: "For voice-to-text in reports", icon: "🎙️", val: true },
-    { label: "Battery Optimization", desc: "Allow background location access", icon: "🔋", val: true },
+    { labelKey: "settings.pushNotifications", descKey: "settings.pushNotificationsDesc", icon: "🔔", val: true },
+    { labelKey: "settings.locationServices", descKey: "settings.locationServicesDesc", icon: "📍", val: true },
+    { labelKey: "settings.darkMode", descKey: "settings.darkModeDesc", icon: "🌙", val: false },
+    { labelKey: "settings.microphone", descKey: "settings.microphoneDesc", icon: "🎙️", val: true },
+    { labelKey: "settings.batteryOptimization", descKey: "settings.batteryOptimizationDesc", icon: "🔋", val: true },
   ]);
 
   const toggle = (i: number) =>
     setToggles((prev) => prev.map((t, j) => (j === i ? { ...t, val: !t.val } : t)));
-
-  const [lang, setLang] = useState("English");
 
   return (
     <div className="absolute inset-0 bg-slate-50 flex flex-col" style={{ paddingTop: 48 }}>
@@ -24,25 +27,25 @@ export default function SettingsScreen({ onBack }: { onBack: () => void }) {
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </button>
-        <h1 className="font-bold text-slate-900 text-lg">Settings</h1>
+        <h1 className="font-bold text-slate-900 text-lg">{t("settings.title")}</h1>
       </div>
 
       <div className="flex-1 overflow-y-auto" style={{ paddingBottom: 80 }}>
         {/* Language */}
         <div className="px-4 pt-5 mb-2">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Language & Region</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">{t("settings.languageRegion")}</p>
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
             <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-100">
               <span className="text-xl">🌐</span>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-700">App Language</p>
-                <p className="text-xs text-slate-400">Currently: {lang}</p>
+                <p className="text-sm font-semibold text-slate-700">{t("settings.appLanguage")}</p>
+                <p className="text-xs text-slate-400">{t("settings.currently")} {currentLang === "hi" ? "हिन्दी" : "English"}</p>
               </div>
               <div className="flex bg-slate-100 rounded-xl p-0.5">
-                {["English", "हिन्दी"].map((l) => (
-                  <button key={l} onClick={() => setLang(l)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${lang === l ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}>
-                    {l}
+                {(["en", "hi"] as const).map((l) => (
+                  <button key={l} onClick={() => setLanguage(l)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${currentLang === l ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}>
+                    {l === "en" ? "English" : "हिन्दी"}
                   </button>
                 ))}
               </div>
@@ -50,8 +53,8 @@ export default function SettingsScreen({ onBack }: { onBack: () => void }) {
             <div className="flex items-center gap-3 px-4 py-4">
               <span className="text-xl">🇮🇳</span>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-700">Region</p>
-                <p className="text-xs text-slate-400">Maharashtra, India</p>
+                <p className="text-sm font-semibold text-slate-700">{t("settings.region")}</p>
+                <p className="text-xs text-slate-400">{t("settings.regionValue")}</p>
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
@@ -60,14 +63,14 @@ export default function SettingsScreen({ onBack }: { onBack: () => void }) {
 
         {/* Toggles */}
         <div className="px-4 mb-2">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Permissions & Features</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">{t("settings.permissionsFeatures")}</p>
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
             {toggles.map((item, i) => (
               <div key={i} className={`flex items-center gap-3 px-4 py-3.5 ${i < toggles.length - 1 ? "border-b border-slate-100" : ""}`}>
                 <span className="text-xl">{item.icon}</span>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-slate-700">{item.label}</p>
-                  <p className="text-xs text-slate-400">{item.desc}</p>
+                  <p className="text-sm font-semibold text-slate-700">{t(item.labelKey)}</p>
+                  <p className="text-xs text-slate-400">{t(item.descKey)}</p>
                 </div>
                 <button
                   onClick={() => toggle(i)}
@@ -82,12 +85,16 @@ export default function SettingsScreen({ onBack }: { onBack: () => void }) {
 
         {/* About */}
         <div className="px-4 mb-2">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">About</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">{t("settings.about")}</p>
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-            {[{ icon: "ℹ️", label: "About RakshaSetu", val: "" }, { icon: "🔒", label: "Privacy Policy", val: "" }, { icon: "📄", label: "Terms of Service", val: "" }].map((item, i, arr) => (
+            {[
+              { icon: "ℹ️", labelKey: "settings.aboutRakshaSetu" },
+              { icon: "🔒", labelKey: "settings.privacyPolicy" },
+              { icon: "📄", labelKey: "settings.termsOfService" }
+            ].map((item, i, arr) => (
               <button key={i} className={`w-full flex items-center gap-3 px-4 py-3.5 text-left ${i < arr.length - 1 ? "border-b border-slate-100" : ""}`}>
                 <span className="text-xl">{item.icon}</span>
-                <p className="text-sm font-semibold text-slate-700 flex-1">{item.label}</p>
+                <p className="text-sm font-semibold text-slate-700 flex-1">{t(item.labelKey)}</p>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
               </button>
             ))}
@@ -103,8 +110,8 @@ export default function SettingsScreen({ onBack }: { onBack: () => void }) {
             </svg>
           </div>
           <div>
-            <p className="font-bold text-slate-900">RakshaSetu</p>
-            <p className="text-xs text-slate-400">Version 2.1.0 · Innovik Hackathon 2026</p>
+            <p className="font-bold text-slate-900">{t("common.appName")}</p>
+            <p className="text-xs text-slate-400">{t("common.version")}</p>
           </div>
         </div>
       </div>

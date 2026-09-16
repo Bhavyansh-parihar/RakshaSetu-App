@@ -1,0 +1,323 @@
+{
+  "common": {
+    "appName": "RakshaSetu",
+    "back": "Back",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "retry": "Retry",
+    "ok": "OK",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading...",
+    "online": "Online",
+    "offline": "Offline",
+    "search": "Search",
+    "save": "Save",
+    "close": "Close",
+    "version": "Version 2.1.0 · Innovik Hackathon 2026"
+  },
+  "auth": {
+    "title": "RakshaSetu",
+    "subtitle": "Citizen Login",
+    "welcome": "Welcome back",
+    "signInSubtitle": "Sign in to access your emergency portal",
+    "phoneTab": "📱 Phone",
+    "emailTab": "✉️ Email",
+    "mobileNumber": "Mobile Number",
+    "emailAddress": "Email Address",
+    "passwordMethod": "🔒 Password",
+    "otpMethod": "🔢 OTP",
+    "password": "Password",
+    "enterOtp": "Enter OTP",
+    "resendOtp": "Resend OTP in 30s",
+    "forgotPassword": "Forgot Password?",
+    "biometricTitle": "Biometric Login",
+    "biometricSubtitle": "Use fingerprint or Face ID",
+    "biometricEnable": "Enable",
+    "signIn": "Sign In Securely",
+    "signingIn": "⏳ Connecting to Server...",
+    "noAccount": "New to RakshaSetu?",
+    "register": "Register Now",
+    "loginFailed": "Login Failed. Use test@test.com and password: test",
+    "networkError": "Network error. Please check your connection and try again.",
+    "coldStart": "Server is taking too long to respond. Please try again in 10 seconds."
+  },
+  "splash": {
+    "tagline": "AI-Powered Disaster Safety",
+    "loading": "Initializing..."
+  },
+  "language": {
+    "title": "Choose Language",
+    "subtitle": "Select your preferred language",
+    "english": "English",
+    "hindi": "हिन्दी",
+    "continue": "Continue"
+  },
+  "home": {
+    "greeting": "Stay Safe,",
+    "location": "Mumbai, Maharashtra",
+    "statusSafe": "All Clear",
+    "statusWarning": "Weather Advisory",
+    "statusFlood": "Flood Alert Active",
+    "statusSafeDesc": "No active disasters in your area",
+    "statusWarningDesc": "Heavy rain expected tonight",
+    "statusFloodDesc": "Evacuate if near low-lying areas",
+    "sosTitle": "EMERGENCY SOS",
+    "sosSubtitle": "Hold to send distress signal",
+    "sosHolding": "Release to Cancel",
+    "sosSent": "SOS Sent ✓",
+    "sosSentSubtitle": "Responders have been notified",
+    "sosHoldInstruction": "Hold for {{count}} seconds",
+    "quickActions": "Quick Actions",
+    "reportIncident": "Report Incident",
+    "aiAssistant": "AI Assistant",
+    "safetyTips": "Safety Tips",
+    "emergencyHelpline": "Emergency Helpline",
+    "nearbyAlerts": "Nearby Alerts",
+    "viewAll": "View All",
+    "floodWarning": "Flood Warning",
+    "floodWarningDesc": "Mithi River level rising — 2.3km away",
+    "heatAdvisory": "Heat Advisory",
+    "heatAdvisoryDesc": "Temperature 42°C expected tomorrow",
+    "menu": "Menu"
+  },
+  "sos": {
+    "sending": "Sending SOS...",
+    "sent": "SOS Sent!",
+    "failed": "Failed to send SOS. Please try again.",
+    "responderNotified": "Responders have been alerted"
+  },
+  "report": {
+    "title": "Report Incident",
+    "subtitle": "Help responders reach you faster",
+    "incidentType": "Incident Type",
+    "flood": "Flood",
+    "fire": "Fire",
+    "earthquake": "Earthquake",
+    "medical": "Medical",
+    "accident": "Accident",
+    "other": "Other",
+    "evidenceUpload": "Evidence Upload",
+    "uploadPhoto": "Upload Photo or Video",
+    "uploadDesc": "Drag & drop or choose from gallery",
+    "camera": "Camera",
+    "gallery": "Gallery",
+    "video": "Video",
+    "uploading": "Uploading...",
+    "metadataVerified": "Metadata Verified",
+    "metadataDesc": "Location & timestamp authenticated",
+    "location": "📍 Location",
+    "locationValue": "Andheri, Mumbai",
+    "timestamp": "📅 Timestamp",
+    "device": "📱 Device",
+    "coords": "🌐 Coords",
+    "aiConfidence": "AI Confidence Score",
+    "description": "Description",
+    "descPlaceholder": "Describe the incident in detail...",
+    "voiceInput": "Voice Input",
+    "stopRecording": "Stop Recording",
+    "listening": "Listening...",
+    "priorityLevel": "Priority Level",
+    "low": "Low",
+    "medium": "Medium",
+    "critical": "Critical",
+    "submitReport": "Submit Report",
+    "transcribing": "(Transcribing...)"
+  },
+  "chatbot": {
+    "title": "RakshaSetu Survival Assistant",
+    "online": "Online · Powered by Gemini",
+    "placeholder": "Type a message...",
+    "listening": "Listening...",
+    "quickQuestions": "Quick questions",
+    "suggestions": ["Flood Safety", "Earthquake Tips", "First Aid", "Nearby Shelter", "SOS Help", "Evacuation Routes"],
+    "errorMsg": "I'm having trouble connecting to the network right now. Stay safe! For immediate emergencies, press SOS.",
+    "initialMsg": "Hello! I'm your RakshaSetu Survival Assistant, powered by Gemini. How can I help you stay safe today? 🛡️"
+  },
+  "guidelines": {
+    "title": "Safety Guidelines",
+    "disasterGuidelines": "Disaster Guidelines",
+    "safety": "Safety",
+    "criticalProtocols": "critical safety protocols",
+    "danger": "In Immediate Danger?",
+    "dangerDesc": "Press the SOS button on the home screen or call 112 immediately.",
+    "categories": {
+      "flood": {
+        "label": "Flood",
+        "tips": [
+          "Move to higher ground immediately",
+          "Do not walk in moving water",
+          "Avoid flooded roads while driving",
+          "Keep emergency kit ready",
+          "Disconnect electrical appliances",
+          "Listen to local emergency broadcasts"
+        ]
+      },
+      "fire": {
+        "label": "Fire",
+        "tips": [
+          "Stay low to the ground",
+          "Use wet cloth over nose and mouth",
+          "Never use elevators",
+          "Meet at designated assembly point",
+          "Call fire brigade: 101",
+          "Do not re-enter burning building"
+        ]
+      },
+      "earthquake": {
+        "label": "Earthquake",
+        "tips": [
+          "Drop, Cover, Hold On",
+          "Stay away from windows",
+          "Turn off gas immediately after shaking stops",
+          "Check for structural damage",
+          "Expect aftershocks",
+          "Use stairs, not elevators"
+        ]
+      },
+      "cyclone": {
+        "label": "Cyclone",
+        "tips": [
+          "Evacuate coastal areas immediately",
+          "Board up windows and doors",
+          "Store emergency supplies",
+          "Keep fully charged devices",
+          "Follow evacuation orders",
+          "Stay indoors until all-clear"
+        ]
+      },
+      "landslide": {
+        "label": "Landslide",
+        "tips": [
+          "Watch for warning signs: cracks, bulging ground",
+          "Evacuate immediately when ordered",
+          "Stay out of valleys during heavy rain",
+          "Listen for rumbling sounds",
+          "Report damaged roads to authorities"
+        ]
+      },
+      "firstaid": {
+        "label": "First Aid",
+        "tips": [
+          "Check for safety before helping",
+          "Call 112 for emergency services",
+          "Apply direct pressure for bleeding",
+          "CPR: 30 compressions, 2 breaths",
+          "Do not move spinal injury victims",
+          "Keep victims warm and calm"
+        ]
+      }
+    },
+    "expandedNote": "Follow this guideline carefully and report to your local emergency coordinator. Contact 112 for immediate assistance."
+  },
+  "helpline": {
+    "title": "Emergency Helplines",
+    "subtitle": "24/7 Emergency Numbers",
+    "callNow": "Call Now",
+    "contacts": [
+      { "name": "National Emergency", "number": "112", "desc": "Police, Fire, Ambulance", "icon": "🚨" },
+      { "name": "Police", "number": "100", "desc": "Law enforcement", "icon": "👮" },
+      { "name": "Ambulance", "number": "108", "desc": "Medical emergency", "icon": "🚑" },
+      { "name": "Fire Brigade", "number": "101", "desc": "Fire emergency", "icon": "🔥" },
+      { "name": "NDRF", "number": "011-24363260", "desc": "National Disaster Response Force", "icon": "🛡️" },
+      { "name": "Women Helpline", "number": "1091", "desc": "Women safety & emergency", "icon": "👩" },
+      { "name": "Disaster Mgmt", "number": "1078", "desc": "State disaster helpline", "icon": "⚠️" }
+    ]
+  },
+  "contacts": {
+    "title": "Emergency Contacts",
+    "subtitle": "Your trusted safety network",
+    "primary": "PRIMARY",
+    "secondary": "SECONDARY",
+    "call": "Call",
+    "message": "Message",
+    "addContact": "Add Emergency Contact",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email"
+  },
+  "history": {
+    "title": "Incident History",
+    "subtitle": "Your reported incidents",
+    "active": "Active",
+    "resolved": "Resolved",
+    "pending": "Pending",
+    "noHistory": "No incidents reported yet",
+    "priorityHigh": "High Priority",
+    "priorityMedium": "Medium Priority",
+    "priorityLow": "Low Priority",
+    "responderAssigned": "Responder Assigned",
+    "awaitingResponse": "Awaiting Response",
+    "resolved_label": "Resolved"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Alerts & updates",
+    "sosAccepted": "Responder accepted your SOS.",
+    "weatherWarning": "Weather warning issued for your area.",
+    "newBroadcast": "New emergency broadcast received.",
+    "markRead": "Mark all read",
+    "noNotifications": "No notifications yet"
+  },
+  "shelters": {
+    "title": "Nearby Shelters",
+    "subtitle": "Safe locations near you",
+    "open": "Open",
+    "closed": "Closed",
+    "capacity": "Capacity",
+    "distance": "Distance",
+    "eta": "ETA",
+    "getDirections": "Get Directions",
+    "noShelters": "No shelters found nearby"
+  },
+  "profile": {
+    "title": "My Profile",
+    "editProfile": "Edit Profile",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "bloodGroup": "Blood Group",
+    "emergencyContact": "Emergency Contact",
+    "medicalInfo": "Medical Info",
+    "logout": "Logout",
+    "memberSince": "Member since"
+  },
+  "settings": {
+    "title": "Settings",
+    "languageRegion": "Language & Region",
+    "appLanguage": "App Language",
+    "currently": "Currently:",
+    "region": "Region",
+    "regionValue": "Maharashtra, India",
+    "permissionsFeatures": "Permissions & Features",
+    "pushNotifications": "Push Notifications",
+    "pushNotificationsDesc": "Alerts for disasters & SOS updates",
+    "locationServices": "Location Services",
+    "locationServicesDesc": "Required for shelter & SOS features",
+    "darkMode": "Dark Mode",
+    "darkModeDesc": "Switch to dark interface",
+    "microphone": "Microphone",
+    "microphoneDesc": "For voice-to-text in reports",
+    "batteryOptimization": "Battery Optimization",
+    "batteryOptimizationDesc": "Allow background location access",
+    "about": "About",
+    "aboutRakshaSetu": "About RakshaSetu",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
+  },
+  "permissions": {
+    "micRequired": "Microphone permission required for voice input.",
+    "locationRequired": "Location permission required for SOS and shelter features.",
+    "cameraRequired": "Camera permission required for evidence upload.",
+    "denied": "Permission denied. Please enable it in your device settings."
+  },
+  "errors": {
+    "networkError": "Network error. Please check your connection.",
+    "serverUnavailable": "Server unavailable. Please try again later.",
+    "uploadFailed": "Upload failed. Please try again.",
+    "timeout": "Request timed out. Please retry.",
+    "gpsUnavailable": "GPS unavailable. Using approximate location.",
+    "unknown": "Something went wrong. Please try again."
+  }
+}

@@ -1,20 +1,31 @@
 import { useState } from "react";
-
-const categories = [
-  { id: "flood", icon: "🌊", label: "Flood", color: "#2563EB", bg: "#eff6ff", tips: ["Move to higher ground immediately", "Do not walk in moving water", "Avoid flooded roads while driving", "Keep emergency kit ready", "Disconnect electrical appliances", "Listen to local emergency broadcasts"] },
-  { id: "fire", icon: "🔥", label: "Fire", color: "#DC2626", bg: "#fef2f2", tips: ["Stay low to the ground", "Use wet cloth over nose and mouth", "Never use elevators", "Meet at designated assembly point", "Call fire brigade: 101", "Do not re-enter burning building"] },
-  { id: "earthquake", icon: "🏔️", label: "Earthquake", color: "#EA580C", bg: "#fff7ed", tips: ["Drop, Cover, Hold On", "Stay away from windows", "Turn off gas immediately after shaking stops", "Check for structural damage", "Expect aftershocks", "Use stairs, not elevators"] },
-  { id: "cyclone", icon: "🌀", label: "Cyclone", color: "#7C3AED", bg: "#f5f3ff", tips: ["Evacuate coastal areas immediately", "Board up windows and doors", "Store emergency supplies", "Keep fully charged devices", "Follow evacuation orders", "Stay indoors until all-clear"] },
-  { id: "landslide", icon: "🏞️", label: "Landslide", color: "#92400E", bg: "#fffbeb", tips: ["Watch for warning signs: cracks, bulging ground", "Evacuate immediately when ordered", "Stay out of valleys during heavy rain", "Listen for rumbling sounds", "Report damaged roads to authorities"] },
-  { id: "firstaid", icon: "🩹", label: "First Aid", color: "#16A34A", bg: "#f0fdf4", tips: ["Check for safety before helping", "Call 112 for emergency services", "Apply direct pressure for bleeding", "CPR: 30 compressions, 2 breaths", "Do not move spinal injury victims", "Keep victims warm and calm"] },
-];
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "../localization/LanguageContext";
 
 export default function GuidelinesScreen({ onBack }: { onBack: () => void }) {
-  const [active, setActive] = useState("flood");
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [lang, setLang] = useState<"en" | "hi">("en");
+  const { t } = useTranslation();
+  const { currentLang, setLanguage } = useLanguage();
 
-  const current = categories.find((c) => c.id === active)!;
+  const categoryIds = ["flood", "fire", "earthquake", "cyclone", "landslide", "firstaid"] as const;
+  const categoryIcons: Record<string, string> = {
+    flood: "🌊", fire: "🔥", earthquake: "🏔️",
+    cyclone: "🌀", landslide: "🏞️", firstaid: "🩹"
+  };
+  const categoryColors: Record<string, { color: string; bg: string }> = {
+    flood:     { color: "#2563EB", bg: "#eff6ff" },
+    fire:      { color: "#DC2626", bg: "#fef2f2" },
+    earthquake:{ color: "#EA580C", bg: "#fff7ed" },
+    cyclone:   { color: "#7C3AED", bg: "#f5f3ff" },
+    landslide: { color: "#92400E", bg: "#fffbeb" },
+    firstaid:  { color: "#16A34A", bg: "#f0fdf4" },
+  };
+
+  const [active, setActive] = useState<string>("flood");
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const current = { id: active, ...categoryColors[active] };
+  const tips = t(`guidelines.categories.${active}.tips`, { returnObjects: true }) as string[];
+  const label = t(`guidelines.categories.${active}.label`);
 
   return (
     <div className="absolute inset-0 bg-slate-50 flex flex-col" style={{ paddingTop: 48 }}>
@@ -26,12 +37,12 @@ export default function GuidelinesScreen({ onBack }: { onBack: () => void }) {
               <polyline points="15 18 9 12 15 6"/>
             </svg>
           </button>
-          <h1 className="font-bold text-slate-900 text-lg flex-1">Safety Guidelines</h1>
+          <h1 className="font-bold text-slate-900 text-lg flex-1">{t("guidelines.title")}</h1>
           {/* Lang toggle */}
           <div className="flex bg-slate-100 rounded-xl p-0.5">
-            {["en", "hi"].map((l) => (
-              <button key={l} onClick={() => setLang(l as "en" | "hi")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${lang === l ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}>
+            {(["en", "hi"] as const).map((l) => (
+              <button key={l} onClick={() => setLanguage(l)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${currentLang === l ? "bg-white text-blue-600 shadow-sm" : "text-slate-400"}`}>
                 {l === "en" ? "English" : "हिन्दी"}
               </button>
             ))}
@@ -40,17 +51,19 @@ export default function GuidelinesScreen({ onBack }: { onBack: () => void }) {
 
         {/* Category scroll */}
         <div className="flex gap-2 overflow-x-auto -mx-1 px-1">
-          {categories.map((cat) => (
+          {categoryIds.map((id) => (
             <button
-              key={cat.id}
-              onClick={() => setActive(cat.id)}
+              key={id}
+              onClick={() => { setActive(id); setExpanded(null); }}
               className={`flex-shrink-0 flex flex-col items-center gap-1 px-3 py-2 rounded-2xl border-2 transition-all ${
-                active === cat.id ? "border-current shadow-sm" : "border-transparent bg-slate-100"
+                active === id ? "border-current shadow-sm" : "border-transparent bg-slate-100"
               }`}
-              style={active === cat.id ? { borderColor: cat.color, background: cat.bg } : {}}
+              style={active === id ? { borderColor: categoryColors[id].color, background: categoryColors[id].bg } : {}}
             >
-              <span className="text-xl">{cat.icon}</span>
-              <span className="text-xs font-semibold" style={{ color: active === cat.id ? cat.color : "#64748b" }}>{cat.label}</span>
+              <span className="text-xl">{categoryIcons[id]}</span>
+              <span className="text-xs font-semibold" style={{ color: active === id ? categoryColors[id].color : "#64748b" }}>
+                {t(`guidelines.categories.${id}.label`)}
+              </span>
             </button>
           ))}
         </div>
@@ -60,23 +73,23 @@ export default function GuidelinesScreen({ onBack }: { onBack: () => void }) {
       <div className="flex-1 overflow-y-auto px-4 py-4" style={{ paddingBottom: 80 }}>
         {/* Hero card */}
         <div className="rounded-2xl p-5 mb-4 overflow-hidden relative" style={{ background: `linear-gradient(135deg, ${current.color} 0%, ${current.color}cc 100%)` }}>
-          <div className="absolute right-4 top-4 text-7xl opacity-20">{current.icon}</div>
+          <div className="absolute right-4 top-4 text-7xl opacity-20">{categoryIcons[active]}</div>
           <div className="relative z-10">
             <p className="text-white/70 text-xs font-semibold uppercase tracking-widest mb-1">
-              {lang === "hi" ? "आपदा दिशानिर्देश" : "Disaster Guidelines"}
+              {t("guidelines.disasterGuidelines")}
             </p>
             <h2 className="text-white font-black text-2xl mb-2">
-              {lang === "hi" ? `${current.label} सुरक्षा` : `${current.label} Safety`}
+              {label} {t("guidelines.safety")}
             </h2>
             <p className="text-white/80 text-sm">
-              {lang === "hi" ? `${current.tips.length} महत्वपूर्ण सुरक्षा टिप्स` : `${current.tips.length} critical safety protocols`}
+              {tips.length} {t("guidelines.criticalProtocols")}
             </p>
           </div>
         </div>
 
         {/* Accordion tips */}
         <div className="flex flex-col gap-2">
-          {current.tips.map((tip, i) => (
+          {tips.map((tip, i) => (
             <button
               key={i}
               onClick={() => setExpanded(expanded === tip ? null : tip)}
@@ -90,7 +103,7 @@ export default function GuidelinesScreen({ onBack }: { onBack: () => void }) {
                 <p className="text-sm font-semibold text-slate-800">{tip}</p>
                 {expanded === tip && (
                   <p className="text-xs text-slate-500 mt-2 leading-relaxed animate-fade-in">
-                    Follow this guideline carefully and report to your local emergency coordinator. Contact 112 for immediate assistance.
+                    {t("guidelines.expandedNote")}
                   </p>
                 )}
               </div>
@@ -106,8 +119,8 @@ export default function GuidelinesScreen({ onBack }: { onBack: () => void }) {
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex gap-3">
           <span className="text-2xl">🚨</span>
           <div>
-            <p className="text-sm font-bold text-red-700">In Immediate Danger?</p>
-            <p className="text-xs text-red-500 mt-0.5">Press the SOS button on the home screen or call 112 immediately.</p>
+            <p className="text-sm font-bold text-red-700">{t("guidelines.danger")}</p>
+            <p className="text-xs text-red-500 mt-0.5">{t("guidelines.dangerDesc")}</p>
           </div>
         </div>
       </div>

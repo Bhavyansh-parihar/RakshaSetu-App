@@ -1,0 +1,133 @@
+{
+  "common": {
+    "appName": "राखाशेतु बचावकर्मी",
+    "back": "वापस",
+    "cancel": "रद्द करें",
+    "submit": "जमा करें",
+    "retry": "पुनः प्रयास",
+    "ok": "ठीक है",
+    "loading": "लोड हो रहा है...",
+    "version": "संस्करण 2.1.0 · इनोविक हैकाथॉन 2026"
+  },
+  "auth": {
+    "title": "राखाशेतु",
+    "subtitle": "फील्ड बचावकर्मी पोर्टल",
+    "welcome": "बचावकर्मी लॉगिन",
+    "signInSubtitle": "अपने मिशन डैशबोर्ड तक पहुँचने के लिए साइन इन करें",
+    "email": "ईमेल पता",
+    "password": "पासवर्ड",
+    "signIn": "सुरक्षित रूप से साइन इन करें",
+    "signingIn": "⏳ प्रमाणीकरण हो रहा है...",
+    "loginFailed": "लॉगिन विफल। कृपया पुनः प्रयास करें।",
+    "networkError": "नेटवर्क त्रुटि। कृपया अपना कनेक्शन जाँचें।"
+  },
+  "dashboard": {
+    "title": "मिशन नियंत्रण",
+    "subtitle": "फील्ड बचावकर्मी डैशबोर्ड",
+    "activeMissions": "सक्रिय मिशन",
+    "completedToday": "आज पूर्ण",
+    "incomingSOS": "आने वाला SOS",
+    "weatherAlert": "मौसम अलर्ट",
+    "noMissions": "कोई सक्रिय मिशन नहीं",
+    "online": "ऑनलाइन",
+    "offline": "ऑफ़लाइन"
+  },
+  "incoming_sos": {
+    "title": "आने वाला SOS अलर्ट",
+    "subtitle": "आपातकालीन सहायता की आवश्यकता है",
+    "accept": "मिशन स्वीकार करें",
+    "reject": "अस्वीकार करें",
+    "citizenDetails": "नागरिक विवरण",
+    "location": "स्थान",
+    "distance": "दूरी",
+    "incidentType": "घटना का प्रकार",
+    "priority": "प्राथमिकता",
+    "batteryLevel": "बैटरी स्तर",
+    "description": "विवरण",
+    "timeAgo": "पहले",
+    "accepting": "स्वीकार कर रहे हैं..."
+  },
+  "active_rescue": {
+    "title": "सक्रिय बचाव",
+    "subtitle": "मिशन जारी है",
+    "enRoute": "रास्ते में",
+    "reached": "स्थान पर पहुँचे",
+    "rescueStarted": "बचाव शुरू हुआ",
+    "completeRescue": "बचाव पूर्ण करें",
+    "citizenStatus": "नागरिक की स्थिति",
+    "eta": "अनुमानित समय",
+    "navigate": "नेविगेट करें",
+    "callCitizen": "नागरिक को कॉल करें",
+    "updateStatus": "स्थिति अपडेट करें"
+  },
+  "verification": {
+    "title": "AI सत्यापन",
+    "subtitle": "घटना रिपोर्ट विश्लेषण करें",
+    "confidence": "AI विश्वास स्कोर",
+    "genuine": "वास्तविक चिह्नित करें",
+    "fake": "नकली चिह्नित करें",
+    "pending": "सत्यापन लंबित",
+    "verified": "सत्यापित",
+    "imageEvidence": "छवि साक्ष्य",
+    "noImage": "कोई छवि नहीं",
+    "metadataVerified": "मेटाडेटा सत्यापित",
+    "location": "स्थान",
+    "timestamp": "समय",
+    "device": "डिवाइस"
+  },
+  "navigation": {
+    "dashboard": "डैशबोर्ड",
+    "missions": "मिशन",
+    "shelters": "आश्रय",
+    "notifications": "सूचनाएँ",
+    "profile": "प्रोफ़ाइल",
+    "settings": "सेटिंग्स"
+  },
+  "notifications": {
+    "title": "सूचनाएँ",
+    "noNotifications": "कोई सूचना नहीं",
+    "newSOS": "नया SOS अलर्ट प्राप्त हुआ।",
+    "missionCompleted": "मिशन सफलतापूर्वक पूर्ण हुआ।",
+    "weatherWarning": "आपके क्षेत्र में मौसम की चेतावनी।"
+  },
+  "profile": {
+    "title": "बचावकर्मी प्रोफ़ाइल",
+    "name": "नाम",
+    "badgeId": "बैज ID",
+    "department": "विभाग",
+    "station": "स्टेशन",
+    "logout": "लॉगआउट",
+    "editProfile": "प्रोफ़ाइल संपादित करें"
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "language": "भाषा",
+    "appLanguage": "ऐप भाषा",
+    "currently": "वर्तमान:",
+    "notifications": "सूचनाएँ",
+    "about": "राखाशेतु के बारे में",
+    "privacy": "गोपनीयता नीति",
+    "logout": "लॉगआउट"
+  },
+  "shelters": {
+    "title": "पास के आश्रय",
+    "open": "खुला",
+    "closed": "बंद",
+    "capacity": "क्षमता",
+    "distance": "दूरी",
+    "getDirections": "दिशाएँ पाएँ"
+  },
+  "completed": {
+    "title": "मिशन पूर्ण",
+    "subtitle": "बचाव अभियान समाप्त",
+    "duration": "अवधि",
+    "citizenSafe": "नागरिक सुरक्षित है",
+    "feedback": "मिशन फ़ीडबैक",
+    "backToDashboard": "डैशबोर्ड पर वापस"
+  },
+  "errors": {
+    "networkError": "नेटवर्क त्रुटि। कृपया अपना कनेक्शन जाँचें।",
+    "serverUnavailable": "सर्वर अनुपलब्ध। कृपया पुनः प्रयास करें।",
+    "unknown": "कुछ गलत हुआ। कृपया पुनः प्रयास करें।"
+  }
+}

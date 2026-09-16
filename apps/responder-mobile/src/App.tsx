@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useResponderStore } from "./store/useResponderStore";
+import { LanguageProvider } from "./localization/LanguageContext";
+import "./localization/i18n"; // initialize i18n at app root
 import Login from "./screens/Login";
 import Dashboard from "./screens/Dashboard";
 import IncomingSOS from "./screens/IncomingSOS";
@@ -137,66 +139,68 @@ export default function App() {
   };
 
   return (
-    <>
-      <div className="absolute inset-0 bg-[#111827] flex flex-col overflow-hidden">
-        {/* Screen content */}
-        <div className="flex-1 overflow-hidden relative animate-fade-in" key={screen}>
-          {renderScreen()}
-        </div>
-
-        {/* Bottom Navigation */}
-        {showNav && (
-          <div
-            className="shrink-0 border-t border-[#2D4160] flex items-center"
-            style={{ background: "#1A2234", paddingBottom: "env(safe-area-inset-bottom, 8px)" }}
-          >
-            {NAV_ITEMS.map((item) => {
-              const active = item.screen === screen;
-              return (
-                <button
-                  key={item.screen}
-                  onClick={() => navigate(item.screen)}
-                  className="flex-1 flex flex-col items-center py-3 gap-1 transition-opacity active:opacity-70"
-                >
-                  <div className="relative">
-                    {item.icon(active)}
-                    {item.screen === "incoming-sos" && (
-                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF3B30] rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-700 leading-none" style={{ fontSize: 9 }}>1</span>
-                      </div>
-                    )}
-                    {item.screen === "notifications" && (
-                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF3B30] rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-700 leading-none" style={{ fontSize: 9 }}>3</span>
-                      </div>
-                    )}
-                  </div>
-                  <span
-                    className="text-xs font-600 transition-colors"
-                    style={{ color: active ? "#FF4F38" : "#3D5570", fontFamily: "'Inter', sans-serif" }}
-                  >
-                    {item.label}
-                  </span>
-                </button>
-              );
-            })}
-            {/* Settings gear */}
-            <button
-              onClick={() => navigate("settings")}
-              className="flex-1 flex flex-col items-center py-3 gap-1 transition-opacity active:opacity-70"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="3" stroke={screen === "settings" ? "#FF4F38" : "#3D5570"} strokeWidth="1.8"/>
-                <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
-                  stroke={screen === "settings" ? "#FF4F38" : "#3D5570"} strokeWidth="1.8" strokeLinecap="round"/>
-              </svg>
-              <span className="text-xs font-600" style={{ color: screen === "settings" ? "#FF4F38" : "#3D5570", fontFamily: "'Inter', sans-serif" }}>
-                Settings
-              </span>
-            </button>
+    <LanguageProvider>
+      <>
+        <div className="absolute inset-0 bg-[#111827] flex flex-col overflow-hidden">
+          {/* Screen content */}
+          <div className="flex-1 overflow-hidden relative animate-fade-in" key={screen}>
+            {renderScreen()}
           </div>
-        )}
-      </div>
-    </>
+
+          {/* Bottom Navigation */}
+          {showNav && (
+            <div
+              className="shrink-0 border-t border-[#2D4160] flex items-center"
+              style={{ background: "#1A2234", paddingBottom: "env(safe-area-inset-bottom, 8px)" }}
+            >
+              {NAV_ITEMS.map((item) => {
+                const active = item.screen === screen;
+                return (
+                  <button
+                    key={item.screen}
+                    onClick={() => navigate(item.screen)}
+                    className="flex-1 flex flex-col items-center py-3 gap-1 transition-opacity active:opacity-70"
+                  >
+                    <div className="relative">
+                      {item.icon(active)}
+                      {item.screen === "incoming-sos" && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF3B30] rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-700 leading-none" style={{ fontSize: 9 }}>1</span>
+                        </div>
+                      )}
+                      {item.screen === "notifications" && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF3B30] rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-700 leading-none" style={{ fontSize: 9 }}>3</span>
+                        </div>
+                      )}
+                    </div>
+                    <span
+                      className="text-xs font-600 transition-colors"
+                      style={{ color: active ? "#FF4F38" : "#3D5570", fontFamily: "'Inter', sans-serif" }}
+                    >
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              })}
+              {/* Settings gear */}
+              <button
+                onClick={() => navigate("settings")}
+                className="flex-1 flex flex-col items-center py-3 gap-1 transition-opacity active:opacity-70"
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="3" stroke={screen === "settings" ? "#FF4F38" : "#3D5570"} strokeWidth="1.8"/>
+                  <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                    stroke={screen === "settings" ? "#FF4F38" : "#3D5570"} strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+                <span className="text-xs font-600" style={{ color: screen === "settings" ? "#FF4F38" : "#3D5570", fontFamily: "'Inter', sans-serif" }}>
+                  Settings
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
+      </>
+    </LanguageProvider>
   );
 }
