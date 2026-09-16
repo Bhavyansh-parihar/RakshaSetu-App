@@ -9,6 +9,9 @@ import { PrismaService } from './prisma.service';
 import { EventsGateway } from './events.gateway';
 import { JwtModule } from '@nestjs/jwt';
 
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
 @Module({
   imports: [
     AuthModule,
@@ -21,6 +24,7 @@ import { JwtModule } from '@nestjs/jwt';
       secret: process.env.JWT_SECRET || 'super-secret-jwt-key',
     }),
   ],
-  providers: [PrismaService, EventsGateway],
+  controllers: [AppController],
+  providers: [AppService, PrismaService, EventsGateway],
 })
 export class AppModule {}
