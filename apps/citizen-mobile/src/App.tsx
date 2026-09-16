@@ -42,6 +42,37 @@ export default function App() {
     }
   }, [connectSocket]);
 
+  // Request basic permissions when the app mounts or user logs in
+  useEffect(() => {
+    const requestPermissions = async () => {
+      // 1. Camera & Microphone
+      try {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+          stream.getTracks().forEach(track => track.stop()); // Stop immediately after granting
+        }
+      } catch (err) {
+        console.warn('Camera/Mic permission denied:', err);
+      }
+      
+      // 2. Location
+      try {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            () => console.log('Location permission granted'),
+            (err) => console.warn('Location permission denied:', err)
+          );
+        }
+      } catch (err) {
+        console.warn('Location API error:', err);
+      }
+    };
+    
+    // Request permissions after a slight delay so it doesn't block the initial splash screen
+    const timer = setTimeout(() => requestPermissions(), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const navigate = (to: Screen) => {
     setHistory((h) => [...h, screen]);
     setScreen(to);
