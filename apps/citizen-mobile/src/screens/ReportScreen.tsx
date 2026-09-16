@@ -116,12 +116,15 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
           battery = Math.round(b.level * 100);
         } catch {}
       }
+      
+      const fileName = fileInputRef.current?.files?.[0]?.name || "unknown.jpg";
 
       // Create JSON payload
       const payload = {
         type: selected,
         description: description.trim() || `${selected.toUpperCase()} emergency reported by citizen`,
         imageBase64: imageBase64 || undefined,
+        fileName: fileName,
         latitude: lat,
         longitude: lng,
         batteryLevel: battery,

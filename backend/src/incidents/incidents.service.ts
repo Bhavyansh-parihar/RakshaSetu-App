@@ -85,6 +85,13 @@ export class IncidentsService {
         aiConfidence = this.simulateDetectionAIScore();
       }
     }
+
+    // Explicitly check for specific keywords in filename (metadata trigger)
+    const lowerName = (data.fileName || '').toLowerCase();
+    if (lowerName.includes('flood') || lowerName.includes('fire') || lowerName.includes('positive')) {
+      console.log(`⭐ Simulated High Confidence Triggered by filename metadata: ${data.fileName}`);
+      aiConfidence = parseFloat((Math.random() * (0.99 - 0.90) + 0.90).toFixed(2));
+    }
     
     // 2. Calculate priority score
     const priorityScore = this.calculatePriorityScore(aiConfidence, data.batteryLevel || 100, data.isSevereWeather || false);
