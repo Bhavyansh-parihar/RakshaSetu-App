@@ -36,8 +36,13 @@ export const useResponderStore = create<ResponderState>((set, get) => ({
 
   connectSocket: (token: string) => {
     if (get().socket) return;
-    const socket = io('https://rakshasetu-app-8dvk.onrender.com', {
-      auth: { token }
+    const API_URL = import.meta.env.VITE_API_URL || 'https://rakshasetu-app-8dvk.onrender.com';
+    const socket = io(API_URL, {
+      auth: { token },
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 2000,
+      timeout: 30000,
     });
 
     socket.on('connect', () => {

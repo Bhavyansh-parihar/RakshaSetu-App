@@ -46,7 +46,8 @@ export default function HomeScreen({ onNavigate, onMenu }: { onNavigate: (s: Scr
             } catch {}
           }
 
-          await fetch("https://rakshasetu-app-8dvk.onrender.com/incidents/sos", {
+          const API_URL = import.meta.env.VITE_API_URL || 'https://rakshasetu-app-8dvk.onrender.com';
+          await fetch(`${API_URL}/incidents/sos`, {
             method: "POST",
             headers: { 
               "Content-Type": "application/json",

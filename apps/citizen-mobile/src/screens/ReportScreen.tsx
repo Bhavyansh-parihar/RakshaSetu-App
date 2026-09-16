@@ -45,7 +45,8 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
           
           try {
              setDescription(prev => prev + (prev ? " " : "") + "(Transcribing...)");
-             const res = await axios.post("https://rakshasetu-app-8dvk.onrender.com/incidents/transcribe", formData, {
+      const API_URL = import.meta.env.VITE_API_URL || 'https://rakshasetu-app-8dvk.onrender.com';
+      const res = await axios.post(`${API_URL}/incidents/transcribe`, formData, {
                headers: { 'Content-Type': 'multipart/form-data' }
              });
              if (res.data && res.data.text) {
@@ -139,7 +140,8 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
         headers.Authorization = `Bearer ${token}`;
       }
 
-      await axios.post("https://rakshasetu-app-8dvk.onrender.com/incidents/sos", payload, { headers });
+      const API_URL = import.meta.env.VITE_API_URL || 'https://rakshasetu-app-8dvk.onrender.com';
+      await axios.post(`${API_URL}/incidents/sos`, payload, { headers, timeout: 30000 });
 
       // Reset form state so next SOS is completely clean and independent
       setImageBase64(null);
