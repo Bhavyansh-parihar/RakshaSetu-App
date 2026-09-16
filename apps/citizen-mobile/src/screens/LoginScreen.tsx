@@ -7,7 +7,24 @@ export default function LoginScreen({ onDone }: { onDone: (token?: string) => vo
   const [phone, setPhone] = useState("9876543210");
   const [password, setPassword] = useState("test");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loginPhase, setLoginPhase] = useState<"idle" | "loading" | "error-network" | "error-render">("idle");
+
+  const handleSimulatedLogin = () => {
+    setLoginPhase("loading");
+    
+    // Simulate 3 seconds of buffer loading
+    setTimeout(() => {
+      // Check network type
+      const connection = (navigator as any).connection;
+      const isWifi = connection?.type === 'wifi' || connection?.effectiveType === '4g';
+      
+      if (isWifi) {
+        setLoginPhase("error-render");
+      } else {
+        setLoginPhase("error-network");
+      }
+    }, 3000);
+  };
 
   return (
     <div className="absolute inset-0 bg-white flex flex-col">
@@ -126,54 +143,66 @@ export default function LoginScreen({ onDone }: { onDone: (token?: string) => vo
         </div>
 
         <button
-          disabled={loading}
-          onClick={async () => {
-            setLoading(true);
-            const API_URL = import.meta.env.VITE_API_URL || 'https://rakshasetu-app-8dvk.onrender.com';
-            const loginEmail = tab === "email" ? email.trim() : "test@test.com";
-            
-            // AbortController for 60s timeout (handles Render cold starts)
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 60000);
-            
-            try {
-              const response = await fetch(`${API_URL}/auth/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: loginEmail, password: password }),
-                signal: controller.signal,
-              });
-              clearTimeout(timeoutId);
-              
-              if (response.ok) {
-                const resData = await response.json();
-                localStorage.setItem("token", resData.access_token);
-                onDone(resData.access_token);
-              } else {
-                alert("Login Failed. Use test@test.com and password: test");
-              }
-            } catch (err: any) {
-              clearTimeout(timeoutId);
-              if (err?.name === 'AbortError') {
-                alert("Server is taking too long to respond (Render cold start). Please try again in 10 seconds.");
-              } else {
-                console.error("Login error:", err);
-                alert("Network error. Please check your connection and try again.");
-              }
-            } finally {
-              setLoading(false);
-            }
-          }}
+          disabled={loginPhase !== "idle"}
+          onClick={handleSimulatedLogin}
           className="w-full py-4 rounded-2xl text-white font-semibold text-base transition-transform active:scale-95 mb-4 shadow-md shadow-blue-500/20"
           style={{ background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)" }}
         >
-          {loading ? "⏳ Connecting to Server..." : "Sign In Securely"}
+          {loginPhase === "loading" ? "⏳ Connecting to Server..." : "Sign In Securely"}
         </button>
 
         <p className="text-center text-sm text-slate-500">
           New to RakshaSetu? <button className="text-blue-600 font-semibold">Register Now</button>
         </p>
       </div>
+
+      {/* Full-screen Loading Overlay */}
+      {loginPhase === "loading" && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+          <h2 className="text-xl font-bold text-slate-800">Authenticating...</h2>
+          <p className="text-slate-500 text-sm mt-2">Connecting to secure servers</p>
+        </div>
+      )}
+
+      {/* Network Error Dialog */}
+      {loginPhase === "error-network" && (
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-6">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-6 flex flex-col items-center text-center shadow-2xl">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Network Connection Error</h2>
+            <p className="text-slate-600 text-sm mb-6">
+              Unable to establish a secure connection to RakshaSetu servers. Please check your internet connection and try again.
+            </p>
+            {/* Note: The button is present for visual completeness but doesn't actually dismiss the dialog as requested */}
+            <button className="w-full py-3 bg-slate-100 text-slate-700 font-semibold rounded-xl" onClick={() => {}}>
+              Retry Connection
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Render Error Dialog (WiFi) */}
+      {loginPhase === "error-render" && (
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-6">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-6 flex flex-col items-center text-center shadow-2xl">
+            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+              <span className="text-3xl">⏳</span>
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Render is not responding</h2>
+            <p className="text-slate-600 text-sm mb-6">
+              The backend server (hosted on Render free tier) is currently asleep and taking too long to wake up. Connection timed out.
+            </p>
+            {/* Note: The button is present for visual completeness but doesn't actually dismiss the dialog as requested */}
+            <button className="w-full py-3 bg-slate-100 text-slate-700 font-semibold rounded-xl" onClick={() => {}}>
+              Try Again Later
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

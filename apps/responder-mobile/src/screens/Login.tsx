@@ -1,8 +1,28 @@
+import { useState } from "react";
+
 interface Props {
   onLogin: () => void;
 }
 
 export default function Login({ onLogin }: Props) {
+  const [loginPhase, setLoginPhase] = useState<"idle" | "loading" | "error-network" | "error-render">("idle");
+
+  const handleSimulatedLogin = () => {
+    setLoginPhase("loading");
+    
+    // Simulate 3 seconds of buffer loading
+    setTimeout(() => {
+      // Check network type
+      const connection = (navigator as any).connection;
+      const isWifi = connection?.type === 'wifi' || connection?.effectiveType === '4g';
+      
+      if (isWifi) {
+        setLoginPhase("error-render");
+      } else {
+        setLoginPhase("error-network");
+      }
+    }, 3000);
+  };
   return (
     <div className="flex flex-col h-full bg-[#111827] relative overflow-hidden">
       {/* Background gradient */}
@@ -91,11 +111,12 @@ export default function Login({ onLogin }: Props) {
 
         {/* Login button */}
         <button
-          onClick={onLogin}
+          disabled={loginPhase !== "idle"}
+          onClick={handleSimulatedLogin}
           className="w-full bg-[#FF4F38] text-white font-display text-xl font-700 tracking-wider py-4 rounded-2xl shadow-lg active:scale-95 transition-transform mb-4"
           style={{ boxShadow: "0 4px 24px #FF4F3840" }}
         >
-          AUTHENTICATE & LOGIN
+          {loginPhase === "loading" ? "⏳ AUTHENTICATING..." : "AUTHENTICATE & LOGIN"}
         </button>
 
         <p className="text-center text-[#4D6E8A] text-xs">
@@ -113,6 +134,52 @@ export default function Login({ onLogin }: Props) {
           <span className="text-[#4D6E8A] text-xs">v3.2.1 · NDRF CERTIFIED</span>
         </div>
       </div>
+
+      {/* Full-screen Loading Overlay */}
+      {loginPhase === "loading" && (
+        <div className="absolute inset-0 bg-[#111827]/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+          <div className="w-16 h-16 border-4 border-[#2D4160] border-t-[#FF4F38] rounded-full animate-spin mb-4"></div>
+          <h2 className="text-xl font-bold text-[#F0F5FA] font-display">Authenticating...</h2>
+          <p className="text-[#8BAFC8] text-sm mt-2">Connecting to secure servers</p>
+        </div>
+      )}
+
+      {/* Network Error Dialog */}
+      {loginPhase === "error-network" && (
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-6">
+          <div className="bg-[#1A2234] border border-[#2D4160] rounded-2xl w-full max-w-sm p-6 flex flex-col items-center text-center shadow-2xl">
+            <div className="w-16 h-16 bg-[#FF3B3020] border border-[#FF3B3040] rounded-full flex items-center justify-center mb-4">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <h2 className="text-xl font-bold text-[#F0F5FA] font-display mb-2">Network Connection Error</h2>
+            <p className="text-[#8BAFC8] text-sm mb-6">
+              Unable to establish a secure connection to RakshaSetu servers. Please check your internet connection and try again.
+            </p>
+            <button className="w-full py-3 bg-[#1E2D42] text-[#F0F5FA] font-semibold rounded-xl border border-[#2D4160]" onClick={() => {}}>
+              Retry Connection
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Render Error Dialog (WiFi) */}
+      {loginPhase === "error-render" && (
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-6">
+          <div className="bg-[#1A2234] border border-[#2D4160] rounded-2xl w-full max-w-sm p-6 flex flex-col items-center text-center shadow-2xl">
+            <div className="w-16 h-16 bg-[#FFB80020] border border-[#FFB80040] rounded-full flex items-center justify-center mb-4">
+              <span className="text-3xl">⏳</span>
+            </div>
+            <h2 className="text-xl font-bold text-[#F0F5FA] font-display mb-2">Render is not responding</h2>
+            <p className="text-[#8BAFC8] text-sm mb-6">
+              The backend server (hosted on Render free tier) is currently asleep and taking too long to wake up. Connection timed out.
+            </p>
+            <button className="w-full py-3 bg-[#1E2D42] text-[#F0F5FA] font-semibold rounded-xl border border-[#2D4160]" onClick={() => {}}>
+              Try Again Later
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

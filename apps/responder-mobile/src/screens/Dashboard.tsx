@@ -2,7 +2,9 @@ interface Props {
   navigate: (screen: string) => void;
 }
 
+import { useEffect } from "react";
 import { useResponderStore } from '../store/useResponderStore';
+import axios from 'axios';
 
 const nearby = [
   { id: "INC-2851", type: "MEDICAL", loc: "Park Street", dist: "0.8 km", priority: 5 },
@@ -12,6 +14,23 @@ const nearby = [
 export default function Dashboard({ navigate }: Props) {
   const highPriorityQueue = useResponderStore(state => state.highPriorityQueue);
   const setSelectedIncident = useResponderStore(state => state.setSelectedIncident);
+  const setIncidents = useResponderStore(state => state.setIncidents);
+
+  useEffect(() => {
+    // Fetch initial active incidents on mount so it's populated even if WebSocket just connected
+    const fetchIncidents = async () => {
+      try {
+        const API_URL = import.meta.env.VITE_API_URL || 'https://rakshasetu-app-8dvk.onrender.com';
+        const res = await axios.get(`${API_URL}/incidents`);
+        if (res.data) {
+          setIncidents(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch active incidents:", err);
+      }
+    };
+    fetchIncidents();
+  }, [setIncidents]);
   
   const incidents = highPriorityQueue.map(inc => ({
     raw: inc,

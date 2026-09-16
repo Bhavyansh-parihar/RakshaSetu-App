@@ -1,30 +1,154 @@
-import { useState } from "react";
-import Map, { Marker } from "react-map-gl/mapbox";
+import { useState, useEffect, useMemo } from "react";
+import Map, { Marker, Source, Layer } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-const shelters = [
-  { name: "Seva Shelter — Andheri East", distance: "1.2 km", capacity: "842/1200", eta: "8 min", status: "open", tags: ["Food", "Water", "Medical"], lat: 19.1136, lng: 72.8697 },
-  { name: "Bandra Relief Camp", distance: "2.8 km", capacity: "1100/1200", eta: "15 min", status: "open", tags: ["Food", "Water"], lat: 19.0596, lng: 72.8295 },
-  { name: "Dharavi Shelter Point", distance: "4.1 km", capacity: "1200/1200", eta: "22 min", status: "full", tags: ["Water"], lat: 19.0402, lng: 72.8553 },
-  { name: "Kurla Community Hall", distance: "5.3 km", capacity: "330/800", eta: "28 min", status: "open", tags: ["Food", "Water", "Medical", "Children"], lat: 19.0728, lng: 72.8789 },
-];
+// Haversine distance in km
+function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; 
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  return R * c;
+}
+
+// Generate circular polygon points for Mapbox
+function createGeoJSONCircle(center: [number, number], radiusInKm: number, points = 64) {
+  const coords = {
+    latitude: center[1],
+    longitude: center[0]
+  };
+  const km = radiusInKm;
+  const ret = [];
+  const distanceX = km / (111.320 * Math.cos(coords.latitude * Math.PI / 180));
+  const distanceY = km / 110.574;
+
+  let theta, x, y;
+  for (let i = 0; i < points; i++) {
+    theta = (i / points) * (2 * Math.PI);
+    x = distanceX * Math.cos(theta);
+    y = distanceY * Math.sin(theta);
+    ret.push([coords.longitude + x, coords.latitude + y]);
+  }
+  ret.push(ret[0]);
+  
+  return {
+    type: "Feature" as const,
+    geometry: {
+      type: "Polygon" as const,
+      coordinates: [ret]
+    }
+  };
+}
 
 const filters = ["All", "Open", "Nearby", "Medical", "Food", "Water"];
 
 export default function SheltersScreen({ onBack }: { onBack: () => void }) {
   const [activeFilter, setActiveFilter] = useState("All");
+  
+  const [userLoc, setUserLoc] = useState<{lat: number, lng: number} | null>(null);
+  const [shelters, setShelters] = useState<any[]>([]);
+  const [inDanger, setDanger] = useState(false);
+  const [nearestSafe, setNearestSafe] = useState<any>(null);
+  const [dangerZones, setDangerZones] = useState<any[]>([]);
+  
+  useEffect(() => {
+    // Get real location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        setUserLoc({ lat, lng });
+        
+        // Generate dynamic shelters around user
+        const generatedShelters = [
+          { name: "Seva Shelter", capacity: "842/1200", status: "open", tags: ["Food", "Water", "Medical"], lat: lat + 0.015, lng: lng + 0.01 },
+          { name: "Relief Camp Beta", capacity: "1100/1200", status: "open", tags: ["Food", "Water"], lat: lat - 0.012, lng: lng - 0.008 },
+          { name: "Shelter Point C", capacity: "1200/1200", status: "full", tags: ["Water"], lat: lat + 0.008, lng: lng - 0.015 },
+          { name: "Community Hall", capacity: "330/800", status: "open", tags: ["Food", "Water", "Medical", "Children"], lat: lat - 0.01, lng: lng + 0.012 },
+        ].map(s => {
+          const dist = getDistance(lat, lng, s.lat, s.lng);
+          return { ...s, distance: dist.toFixed(1) + " km", distNum: dist, eta: Math.round(dist * 12) + " min" };
+        });
+        setShelters(generatedShelters);
+
+        // Danger zones (red)
+        const dZones = [
+          { center: [lng + 0.002, lat + 0.002] as [number, number], radius: 0.8, type: "Flood" }, // very close to user
+          { center: [lng - 0.02, lat - 0.02] as [number, number], radius: 1.5, type: "Collapsed Building" }
+        ];
+        setDangerZones(dZones);
+        
+        // Check if user in danger zone
+        let isInDanger = false;
+        for (const dz of dZones) {
+          const dist = getDistance(lat, lng, dz.center[1], dz.center[0]);
+          if (dist < dz.radius) {
+            isInDanger = true;
+            break;
+          }
+        }
+        setDanger(isInDanger);
+        
+        if (isInDanger) {
+          // Find nearest open shelter
+          const openShelters = generatedShelters.filter(s => s.status === 'open');
+          if (openShelters.length > 0) {
+            const nearest = openShelters.reduce((prev, curr) => prev.distNum < curr.distNum ? prev : curr);
+            setNearestSafe(nearest);
+          }
+        }
+
+      }, (error) => {
+        console.error("Error getting location", error);
+      });
+    }
+  }, []);
 
   const filtered = shelters.filter((s) => {
     if (activeFilter === "All") return true;
     if (activeFilter === "Open") return s.status === "open";
-    if (activeFilter === "Nearby") return parseFloat(s.distance) < 3;
+    if (activeFilter === "Nearby") return s.distNum < 3;
     return s.tags.includes(activeFilter);
   });
 
+  const mapData = useMemo(() => {
+    if (!userLoc) return null;
+    
+    // Danger polygons
+    const dangerPolys = dangerZones.map(dz => createGeoJSONCircle(dz.center, dz.radius));
+    
+    // Safe polygons (around open shelters)
+    const safePolys = shelters.filter(s => s.status === 'open').map(s => createGeoJSONCircle([s.lng, s.lat], 0.3));
+
+    return { dangerPolys, safePolys };
+  }, [userLoc, dangerZones, shelters]);
+
   return (
     <div className="absolute inset-0 bg-white flex flex-col" style={{ paddingTop: 48 }}>
+      {/* Danger Alert Overlay */}
+      {inDanger && (
+        <div className="absolute top-16 left-4 right-4 z-50 bg-red-600 rounded-2xl p-4 shadow-2xl border-2 border-red-400 animate-pulse">
+          <div className="flex items-start gap-3">
+            <span className="text-3xl">⚠️</span>
+            <div>
+              <h2 className="text-white font-bold text-lg leading-tight">DANGER ZONE</h2>
+              <p className="text-red-100 text-xs mt-1">Get out of this area ASAP to avoid disaster!</p>
+              {nearestSafe && (
+                <div className="mt-2 bg-red-700/50 rounded-lg p-2">
+                  <p className="text-white text-xs font-semibold">Nearest Safe Zone: {nearestSafe.name} ({nearestSafe.distance})</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 relative z-40 bg-white">
         <button onClick={onBack} className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6"/>
@@ -32,7 +156,7 @@ export default function SheltersScreen({ onBack }: { onBack: () => void }) {
         </button>
         <div>
           <h1 className="font-bold text-slate-900 text-lg">Nearby Shelters</h1>
-          <p className="text-xs text-slate-400">4 shelters found near you</p>
+          <p className="text-xs text-slate-400">{filtered.length} shelters found near you</p>
         </div>
         <div className="ml-auto w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round">
@@ -43,28 +167,88 @@ export default function SheltersScreen({ onBack }: { onBack: () => void }) {
 
       {/* Full-screen map */}
       <div className="h-48 relative flex-shrink-0">
-        <Map
-          mapboxAccessToken={import.meta.env.VITE_MAPBOX_API_KEY}
-          initialViewState={{
-            longitude: 72.85,
-            latitude: 19.07,
-            zoom: 11
-          }}
-          style={{ width: "100%", height: "100%" }}
-          mapStyle="mapbox://styles/mapbox/streets-v12"
-        >
-          {filtered.map((shelter, i) => (
-            <Marker key={i} longitude={shelter.lng} latitude={shelter.lat}>
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 border-white shadow-md ${shelter.status === "full" ? "bg-red-500" : "bg-green-600"}`}>
-                <span className="text-white text-xs font-bold">S</span>
+        {userLoc && (
+          <Map
+            mapboxAccessToken={import.meta.env.VITE_MAPBOX_API_KEY}
+            initialViewState={{
+              longitude: userLoc.lng,
+              latitude: userLoc.lat,
+              zoom: 12
+            }}
+            style={{ width: "100%", height: "100%" }}
+            mapStyle="mapbox://styles/mapbox/streets-v12"
+          >
+            {/* Safe Zones */}
+            {mapData?.safePolys.map((poly, i) => (
+              <Source key={`safe-${i}`} id={`safe-${i}`} type="geojson" data={poly}>
+                <Layer id={`safe-layer-${i}`} type="fill" paint={{ "fill-color": "#22c55e", "fill-opacity": 0.2 }} />
+                <Layer id={`safe-line-${i}`} type="line" paint={{ "line-color": "#16a34a", "line-width": 2, "line-dasharray": [2, 2] }} />
+              </Source>
+            ))}
+
+            {/* Danger Zones */}
+            {mapData?.dangerPolys.map((poly, i) => (
+              <Source key={`danger-${i}`} id={`danger-${i}`} type="geojson" data={poly}>
+                <Layer id={`danger-layer-${i}`} type="fill" paint={{ "fill-color": "#ef4444", "fill-opacity": 0.3 }} />
+                <Layer id={`danger-line-${i}`} type="line" paint={{ "line-color": "#dc2626", "line-width": 2 }} />
+              </Source>
+            ))}
+
+            {/* Danger Centers */}
+            {dangerZones.map((dz, i) => (
+              <Marker key={`dzm-${i}`} longitude={dz.center[0]} latitude={dz.center[1]}>
+                <div className="bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-md whitespace-nowrap">
+                  {dz.type}
+                </div>
+              </Marker>
+            ))}
+
+            {/* Route Line */}
+            {inDanger && nearestSafe && (
+              <Source
+                id="route"
+                type="geojson"
+                data={{
+                  type: "Feature",
+                  properties: {},
+                  geometry: {
+                    type: "LineString",
+                    coordinates: [
+                      [userLoc.lng, userLoc.lat],
+                      [nearestSafe.lng, nearestSafe.lat]
+                    ]
+                  }
+                }}
+              >
+                <Layer
+                  id="route-layer"
+                  type="line"
+                  paint={{
+                    "line-color": "#3b82f6",
+                    "line-width": 4,
+                    "line-dasharray": [2, 2]
+                  }}
+                />
+              </Source>
+            )}
+
+            {/* Shelter Markers */}
+            {filtered.map((shelter, i) => (
+              <Marker key={`sh-${i}`} longitude={shelter.lng} latitude={shelter.lat}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 border-white shadow-md ${shelter.status === "full" ? "bg-red-500" : "bg-green-600"}`}>
+                  <span className="text-white text-xs font-bold">S</span>
+                </div>
+              </Marker>
+            ))}
+
+            {/* User Marker */}
+            <Marker longitude={userLoc.lng} latitude={userLoc.lat}>
+              <div className="w-5 h-5 rounded-full bg-blue-600 border-2 border-white shadow-lg relative">
+                <div className="absolute inset-0 rounded-full bg-blue-600 animate-ping opacity-75"></div>
               </div>
             </Marker>
-          ))}
-          {/* User */}
-          <Marker longitude={72.8777} latitude={19.0760}>
-            <div className="w-5 h-5 rounded-full bg-blue-600 border-2 border-white shadow-lg" />
-          </Marker>
-        </Map>
+          </Map>
+        )}
       </div>
 
       {/* Bottom sheet */}
@@ -120,7 +304,7 @@ export default function SheltersScreen({ onBack }: { onBack: () => void }) {
                     <p className="text-xs text-slate-500">⏱ {shelter.eta}</p>
                   </div>
                   <div className="flex gap-1.5 mt-2 flex-wrap">
-                    {shelter.tags.map((t) => (
+                    {shelter.tags.map((t: string) => (
                       <span key={t} className="text-xs bg-slate-100 text-slate-600 font-medium px-2 py-0.5 rounded-full">{t}</span>
                     ))}
                   </div>
