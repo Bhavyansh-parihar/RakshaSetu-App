@@ -45,7 +45,7 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
           
           try {
              setDescription(prev => prev + (prev ? " " : "") + "(Transcribing...)");
-             const res = await axios.post("http://192.168.1.159:3000/incidents/transcribe", formData, {
+             const res = await axios.post("https://rakshasetu-app-8dvk.onrender.com/incidents/transcribe", formData, {
                headers: { 'Content-Type': 'multipart/form-data' }
              });
              if (res.data && res.data.text) {
@@ -134,7 +134,7 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
         headers.Authorization = `Bearer ${token}`;
       }
 
-      await axios.post("http://localhost:3000/incidents/sos", payload, { headers });
+      await axios.post("https://rakshasetu-app-8dvk.onrender.com/incidents/sos", payload, { headers });
 
       // Reset form state so next SOS is completely clean and independent
       setImageBase64(null);

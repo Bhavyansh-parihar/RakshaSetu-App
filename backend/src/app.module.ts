@@ -3,6 +3,8 @@ import { AuthModule } from './auth/auth.module';
 import { IncidentsModule } from './incidents/incidents.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { WeatherModule } from './weather/weather.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
+import { PortalsModule } from './portals/portals.module';
 import { PrismaService } from './prisma.service';
 import { EventsGateway } from './events.gateway';
 import { JwtModule } from '@nestjs/jwt';
@@ -13,6 +15,8 @@ import { JwtModule } from '@nestjs/jwt';
     IncidentsModule,
     NotificationsModule,
     WeatherModule,
+    ChatbotModule,
+    PortalsModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'super-secret-jwt-key',
     }),

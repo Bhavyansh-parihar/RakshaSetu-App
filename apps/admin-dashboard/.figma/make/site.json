@@ -1,0 +1,10 @@
+{
+  "description": "Enables admins to manage platform integrity with user oversight, fake report moderation, grievance handling, analytics, and system configuration for emergency response.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

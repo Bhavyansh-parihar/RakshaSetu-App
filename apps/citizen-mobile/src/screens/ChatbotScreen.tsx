@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 
 const suggestions = ["Flood Safety", "Earthquake Tips", "First Aid", "Nearby Shelter", "SOS Help", "Evacuation Routes"];
 
@@ -8,27 +9,30 @@ const initialMessages: Message[] = [
   { from: "bot", text: "Hello Bhavyansh! I'm your RakshaSetu Survival Assistant, powered by Gemini. How can I help you stay safe today? 🛡️" },
 ];
 
-const botResponses: Record<string, string> = {
-  "Flood Safety": "During a flood: 1) Move to higher ground immediately. 2) Do not walk in moving water. 3) Avoid driving through flooded roads. 4) Listen to emergency broadcasts. 5) Turn off utilities at main switches if safe to do so. 🌊",
-  "Earthquake Tips": "During an earthquake: DROP, COVER, HOLD ON. Get under a sturdy table or desk. Stay away from windows. After shaking stops, check for injuries and gas leaks. Do not use elevators. 🏔️",
-  "First Aid": "Basic first aid: 1) Check for safety. 2) Call emergency services (112). 3) For bleeding — apply direct pressure. 4) For unconscious victims — check breathing. 5) Do not move injured persons unless there is immediate danger. 🚑",
-  "Nearby Shelter": "The nearest open shelter is Seva Shelter at Andheri East — 1.2 km away, capacity 842/1200. I'm showing directions. Shall I send your location to a family member? 📍",
-  "SOS Help": "To send SOS: Hold the red SOS button on the Home screen for 3 seconds. Your location and details will be shared with NDRF and local emergency services. Responders will be dispatched within minutes. 🆘",
-  "Evacuation Routes": "Current recommended evacuation route from Andheri: Take Western Express Highway north towards Dahisar. Avoid Goregaon link road (flooded). Alternative: S.V. Road towards Malad. 🗺️",
-};
-
 export default function ChatbotScreen({ onBack }: { onBack: () => void }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [lang, setLang] = useState<"en" | "hi">("en");
   const [listening, setListening] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
-  const send = (text: string) => {
+  const send = async (text: string) => {
     if (!text.trim()) return;
     const userMsg: Message = { from: "user", text };
-    const response = botResponses[text] || "I understand your concern. Please stay calm. For immediate emergency assistance, press the SOS button. Responders are on standby in your area.";
-    setMessages((m) => [...m, userMsg, { from: "bot", text: response }]);
+    
+    setMessages((m) => [...m, userMsg]);
     setInput("");
+    setIsTyping(true);
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || "https://rakshasetu-app-8dvk.onrender.com";
+      const res = await axios.post(`${API_URL}/chatbot/ask`, { message: text });
+      setMessages((m) => [...m, { from: "bot", text: res.data.reply }]);
+    } catch (err) {
+      setMessages((m) => [...m, { from: "bot", text: "I'm having trouble connecting to the network right now. Stay safe! For immediate emergencies, press SOS." }]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   return (
@@ -80,6 +84,17 @@ export default function ChatbotScreen({ onBack }: { onBack: () => void }) {
             </div>
           </div>
         ))}
+
+        {isTyping && (
+           <div className="flex gap-2 animate-fade-in">
+             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 text-sm mt-auto">🤖</div>
+             <div className="bg-slate-100 text-slate-800 px-4 py-3 rounded-2xl rounded-tl-sm text-sm flex gap-1 items-center">
+               <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+               <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+               <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+             </div>
+           </div>
+        )}
 
         {/* Suggestion chips */}
         {messages.length <= 2 && (

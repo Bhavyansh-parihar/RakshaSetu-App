@@ -46,7 +46,7 @@ export default function HomeScreen({ onNavigate, onMenu }: { onNavigate: (s: Scr
             } catch {}
           }
 
-          await fetch("http://localhost:3000/incidents/sos", {
+          await fetch("https://rakshasetu-app-8dvk.onrender.com/incidents/sos", {
             method: "POST",
             headers: { 
               "Content-Type": "application/json",

@@ -131,7 +131,7 @@ export default function LoginScreen({ onDone }: { onDone: () => void }) {
             setLoading(true);
             try {
               const loginEmail = tab === "email" ? email.trim() : "test@test.com";
-              const response = await fetch("http://localhost:3000/auth/login", {
+              const response = await fetch("https://rakshasetu-app-8dvk.onrender.com/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: loginEmail, password: password })

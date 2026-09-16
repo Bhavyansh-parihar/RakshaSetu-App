@@ -22,16 +22,23 @@ export class IncidentsService {
     return parseFloat((Math.random() * (1.0 - 0.2) + 0.2).toFixed(2));
   }
 
-  // Priority Queue Score algorithm (1-10)
+  // Priority Queue Score algorithm (1-10) - Hackathon Average Approach
   private calculatePriorityScore(aiConfidence: number, batteryLevel: number, isSevereWeather: boolean): number {
-    let score = 5; // Base score
-    if (aiConfidence > 0.8) score += 3;
-    else if (aiConfidence > 0.6) score += 1;
+    // 1. Normalize AI Score (0-1 -> 1-10)
+    // If aiConfidence is very low, it might be 0, so ensure a minimum of 1
+    const aiScore = Math.max(1, aiConfidence * 10);
     
-    if (batteryLevel < 15) score += 2;
-    if (isSevereWeather) score += 2;
+    // 2. Normalize Battery Score (0-100 -> 1-10, inverted)
+    // Lower battery = higher score. e.g., 20% battery -> 8/10
+    const batteryScore = Math.max(1, ((100 - batteryLevel) / 100) * 10);
     
-    return Math.min(10, score);
+    // 3. Normalize Weather Score (bool -> 1-10)
+    const weatherScore = isSevereWeather ? 10 : 1;
+    
+    // 4. Calculate Average
+    const averageScore = Math.round((aiScore + batteryScore + weatherScore) / 3);
+    
+    return Math.min(10, Math.max(1, averageScore));
   }
 
   async reportSOS(citizenId: string, data: any) {
@@ -61,13 +68,15 @@ export class IncidentsService {
         const baseUrl = process.env.MODEL_API_URL || 'http://localhost:8000';
         const response = await axios.post(`${baseUrl}/detect-anomaly`, {
           image_data: mediaUrl || data.imageBase64,
-          model_type: data.type === 'fire' ? 'fire' : 'fire'
+          model_type: ['fire', 'crowd', 'pothole', 'flood'].includes(data.type?.toLowerCase()) 
+            ? data.type.toLowerCase() 
+            : 'fire'
         }, { timeout: 2000 });
 
         if (response.data && response.data.confidence) {
           aiConfidence = response.data.confidence;
-          if (response.data.anomaly_type === 'fire') {
-            console.log('🔥 newindore AI detected Fire/Smoke anomaly:', response.data);
+          if (response.data.anomaly_type !== 'unknown') {
+            console.log(`🤖 AI detected anomaly [${response.data.anomaly_type}]:`, response.data);
           }
         } else {
           aiConfidence = this.simulateDetectionAIScore();

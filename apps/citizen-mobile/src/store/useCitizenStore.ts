@@ -24,7 +24,7 @@ export const useCitizenStore = create<CitizenState>((set, get) => ({
 
   connectSocket: (token: string) => {
     if (get().socket) return;
-    const socket = io('http://localhost:3000', {
+    const socket = io('https://rakshasetu-app-8dvk.onrender.com', {
       auth: { token }
     });
 
