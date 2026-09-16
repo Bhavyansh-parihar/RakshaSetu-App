@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function LoginScreen({ onDone }: { onDone: () => void }) {
+export default function LoginScreen({ onDone }: { onDone: (token?: string) => void }) {
   const [tab, setTab] = useState<"phone" | "email">("email");
   const [method, setMethod] = useState<"password" | "otp">("password");
   const [email, setEmail] = useState("test@test.com");
@@ -139,7 +139,7 @@ export default function LoginScreen({ onDone }: { onDone: () => void }) {
               if (response.ok) {
                 const resData = await response.json();
                 localStorage.setItem("token", resData.access_token);
-                onDone();
+                onDone(resData.access_token);
               } else {
                 alert("Login Failed. Use test@test.com and password: test");
               }

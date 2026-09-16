@@ -34,6 +34,7 @@ export default function App() {
   const [history, setHistory] = useState<Screen[]>([]);
   
   const connectSocket = useCitizenStore(state => state.connectSocket);
+  const setToken = useCitizenStore(state => state.setToken);
   
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -95,7 +96,13 @@ export default function App() {
         {/* Screens */}
         {screen === "splash" && <SplashScreen onDone={() => navigate("language")} />}
         {screen === "language" && <LanguageScreen onDone={() => navigate("login")} />}
-        {screen === "login" && <LoginScreen onDone={() => navigate("home")} />}
+        {screen === "login" && <LoginScreen onDone={(token?: string) => {
+          if (token) {
+            setToken(token);
+            connectSocket(token);
+          }
+          navigate("home");
+        }} />}
         {screen === "home" && (
           <HomeScreen
             onNavigate={(s) => navigate(s as Screen)}

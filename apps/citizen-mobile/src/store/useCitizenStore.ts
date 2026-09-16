@@ -15,6 +15,7 @@ interface CitizenState {
   connectSocket: (token: string) => void;
   disconnectSocket: () => void;
   setActiveIncident: (incident: Incident | null) => void;
+  setToken: (token: string) => void;
 }
 
 export const useCitizenStore = create<CitizenState>((set, get) => ({
@@ -56,5 +57,6 @@ export const useCitizenStore = create<CitizenState>((set, get) => ({
     }
   },
 
-  setActiveIncident: (incident) => set({ activeIncident: incident })
+  setActiveIncident: (incident) => set({ activeIncident: incident }),
+  setToken: (token) => set({ token })
 }));

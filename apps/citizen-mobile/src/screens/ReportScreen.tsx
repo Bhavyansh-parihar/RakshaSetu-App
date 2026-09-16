@@ -69,7 +69,9 @@ export default function ReportScreen({ onBack, onSubmit }: { onBack: () => void;
   };
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const token = useCitizenStore(state => state.token);
+  const storeToken = useCitizenStore(state => state.token);
+  // Always fall back to localStorage so token is available even after page reload
+  const token = storeToken || localStorage.getItem("token");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
