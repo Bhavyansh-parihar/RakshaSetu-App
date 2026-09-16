@@ -3,7 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { IncidentsService } from './incidents.service';
 import { AuthGuard } from '@nestjs/passport';
 import axios from 'axios';
-import * as FormData from 'form-data';
+import FormData from 'form-data';
 
 @Controller('incidents')
 export class IncidentsController {
@@ -11,7 +11,7 @@ export class IncidentsController {
 
   @Post('transcribe')
   @UseInterceptors(FileInterceptor('audio'))
-  async transcribeAudio(@UploadedFile() file: Express.Multer.File) {
+  async transcribeAudio(@UploadedFile() file: any) {
     if (!file) {
       throw new HttpException('No audio file provided', HttpStatus.BAD_REQUEST);
     }
